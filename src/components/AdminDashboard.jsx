@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
+import { supabase } from '../supabaseClient';
 import {
     LayoutDashboard,
     FileText,
@@ -25,6 +26,9 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({ totalIssued: 0, totalVerifications: 0, totalRevoked: 0 });
     const [activityLogs, setActivityLogs] = useState([]);
+    const [correctionRequests, setCorrectionRequests] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -43,7 +47,25 @@ const AdminDashboard = () => {
                 console.error("Dashboard Fetch Error:", error);
             }
         };
+
+        const fetchCorrections = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('correction_requests')
+                    .select('*')
+                    .eq('status', 'Pending')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                if (data) setCorrectionRequests(data);
+                if (data) setNotifications(data);
+            } catch (error) {
+                console.error("Corrections Fetch Error:", error);
+            }
+        };
+
         fetchDashboardData();
+        fetchCorrections();
     }, []);
 
     const handleExport = async () => {
@@ -63,6 +85,23 @@ const AdminDashboard = () => {
         } catch (error) {
             console.error("Export Error:", error);
             alert("Failed to export database.");
+        }
+    };
+
+    const handleResolve = async (id) => {
+        try {
+            const { error } = await supabase
+                .from('correction_requests')
+                .update({ status: 'Resolved' })
+                .eq('id', id);
+
+            if (error) throw error;
+            
+            // Filter it out of the UI state:
+            setCorrectionRequests(prev => prev.filter(req => req.id !== id));
+        } catch (error) {
+            console.error("Resolve Error:", error);
+            alert("Failed to resolve request.");
         }
     };
 
@@ -133,7 +172,49 @@ const AdminDashboard = () => {
                         </div>
 
                         <div className="flex items-center gap-6">
-                            {/* Range selection removed for final UI */}
+                            <div className="relative">
+                                <Bell 
+                                    className="w-5 h-5 text-zinc-400 hover:text-white cursor-pointer transition-colors" 
+                                    onClick={() => setShowDropdown(!showDropdown)}
+                                />
+                                {notifications.length > 0 && (
+                                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#0a0a09] animate-pulse"></span>
+                                )}
+
+                                {showDropdown && (
+                                    <div className="absolute right-0 mt-4 w-80 bg-[#0f0f0e] border border-zinc-800 shadow-2xl z-50 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                                        <div className="flex items-center justify-between mb-4 pb-2 border-b border-zinc-800/50">
+                                            <span className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">Pending Corrections</span>
+                                            <span className="bg-red-500/10 text-red-500 text-[8px] px-1.5 py-0.5 font-bold">{notifications.length} NEW</span>
+                                        </div>
+
+                                        <div className="max-h-64 overflow-y-auto space-y-3 custom-scrollbar">
+                                            {notifications.length > 0 ? (
+                                                notifications.map((notif) => (
+                                                    <div key={notif.id} className="p-3 bg-black/40 border border-zinc-800/30 hover:border-orange-500/30 transition-colors">
+                                                        <div className="text-[9px] text-zinc-400 font-bold uppercase truncate mb-1">
+                                                            Student: {notif.student_email}
+                                                        </div>
+                                                        <div className="text-[8px] text-zinc-600 mb-2 font-mono">
+                                                            REQ_ID: {notif.id.slice(0, 8)}...
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => navigate('/issue', { state: { correctionData: notif } })}
+                                                            className="w-full bg-[#facc15] hover:bg-yellow-400 text-black font-black text-[9px] tracking-[0.2em] uppercase py-2 transition-all"
+                                                        >
+                                                            [ REVIEW & REISSUE ]
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="py-4 text-center text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
+                                                    No new notifications.
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -208,6 +289,46 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* PENDING CORRECTIONS ALERT PANEL */}
+                    {correctionRequests.length > 0 && (
+                        <div className="border border-red-900/50 bg-red-950/10 rounded-xl p-8 mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
+                            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-red-900/20">
+                                <AlertTriangle className="w-5 h-5 text-red-500" />
+                                <h3 className="text-sm font-black text-red-500 tracking-[0.2em] uppercase">
+                                    ATTENTION REQUIRED: Pending Student Corrections
+                                </h3>
+                            </div>
+
+                            <div className="space-y-4">
+                                {correctionRequests.map((req) => (
+                                    <div key={req.id} className="bg-black/40 border border-red-900/20 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-red-500/30 transition-colors">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[10px] text-gray-500 tracking-widest uppercase">Student Identifier</span>
+                                            <span className="text-xs text-white font-bold">{req.student_email}</span>
+                                        </div>
+
+                                        <div className="flex-1 flex flex-col gap-1">
+                                            <span className="text-[10px] text-gray-500 tracking-widest uppercase">Requested Changes</span>
+                                            <div className="text-[11px] text-red-200/70 font-bold uppercase tracking-tight flex flex-wrap gap-x-4">
+                                                {req.corrected_name && <span>Name: <span className="text-white">{req.corrected_name}</span></span>}
+                                                {req.corrected_reg_no && <span>Reg: <span className="text-white">{req.corrected_reg_no}</span></span>}
+                                                {req.corrected_course && <span>Course: <span className="text-white">{req.corrected_course}</span></span>}
+                                                {req.corrected_cgpa && <span>CGPA: <span className="text-white">{req.corrected_cgpa}</span></span>}
+                                            </div>
+                                        </div>
+
+                                        <button 
+                                            onClick={() => handleResolve(req.id)}
+                                            className="bg-red-600 hover:bg-red-500 text-white font-black text-[9px] tracking-[0.2em] uppercase px-6 py-3 transition-all active:scale-[0.98]"
+                                        >
+                                            [ RESOLVE & REISSUE ]
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* ALTER RECORDS SECTION */}
                     <div className="flex flex-col mb-12">

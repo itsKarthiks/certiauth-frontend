@@ -1,7 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Terminal,
-    AtSign,
     Calendar,
     FileTerminal,
     ChevronRight,
@@ -9,28 +8,69 @@ import {
     Home
 } from 'lucide-react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 import * as XLSX from 'xlsx';
 
 const IssueCertificate = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const fileInputRef = useRef(null);
+
+    const incomingCorrection = location.state?.correctionData || null;
 
     // Form State
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
-        email: '',
-        studentId: '',
+        registrationNumber: '',
         dob: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [program, setProgram] = useState('');
+    const [course, setCourse] = useState('');
     const [cgpa, setCgpa] = useState('');
 
     // Bulk Issuance State
     const [file, setFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
+
+    useEffect(() => {
+        if (incomingCorrection) {
+            // Split name if possible
+            const nameParts = (incomingCorrection.corrected_name || '').split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+
+            setFormData({
+                firstName: firstName,
+                lastName: lastName,
+                registrationNumber: incomingCorrection.corrected_reg_no || '',
+                dob: '' // DOB might not be in correction request, keep as is
+            });
+
+            if (incomingCorrection.corrected_course) setCourse(incomingCorrection.corrected_course);
+            if (incomingCorrection.corrected_cgpa) setCgpa(incomingCorrection.corrected_cgpa);
+        }
+    }, [incomingCorrection]);
+
+    // Auto-detect Department Logic
+    useEffect(() => {
+        const reg = formData.registrationNumber;
+        if (reg.length >= 3) {
+            const code = reg.substring(0, 3);
+            if (code === '415') {
+                setCourse('Computer Science and Engineering');
+            } else if (code === '416') {
+                setCourse('Information Technology');
+            } else if (code === '412') {
+                setCourse('Electronics and Communication');
+            } else {
+                setCourse(''); // Reset if unknown
+            }
+        } else {
+            setCourse('');
+        }
+    }, [formData.registrationNumber]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -42,35 +82,49 @@ const IssueCertificate = () => {
 
     const handleProceed = async () => {
         setIsSubmitting(true);
-        const { firstName, lastName, studentId } = formData;
+        const { firstName, lastName, registrationNumber } = formData;
+        const fullName = `${firstName} ${lastName}`.trim();
 
-        if (!firstName || !lastName || !studentId || !program || !cgpa) {
-            alert("Please fill out all required fields (Name, ID, Program, CGPA)!");
+        if (!fullName || !registrationNumber || !course || !cgpa) {
+            alert("Please fill out all required fields (Name, Registration Number, Course, CGPA)!");
             setIsSubmitting(false);
             return;
         }
 
         try {
+            // 1. Grab the admin badge from local storage
             const token = localStorage.getItem('adminToken');
-            const payload = {
-                student_name: `${firstName} ${lastName}`.trim(),
-                student_id: studentId,
-                program: program,
-                cgpa: cgpa
-            };
-            const response = await axios.post(
-                'http://localhost:5000/api/certificates/issue',
-                payload,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            console.log('Certificate Issued Successfully!', response.data);
-            alert('Certificate Issued Successfully!');
-            setFormData({ firstName: '', lastName: '', email: '', studentId: '', dob: '' });
-            setProgram('');
+
+            // 2. Sending request to the backend with fetch
+            const response = await fetch('http://localhost:5000/api/certificates/issue', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Show the badge to the backend!
+                },
+                body: JSON.stringify({
+                    registrationNumber: registrationNumber,
+                    name: fullName,
+                    course: course,
+                    cgpa: cgpa,
+                    correctionId: incomingCorrection?.id
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) throw new Error(result.message || 'Failed to issue certificate');
+
+            console.log('API Response:', result);
+            alert('Certificate securely issued with Digital Signature!');
+
+            // Reset Form and State
+            setFormData({ firstName: '', lastName: '', registrationNumber: '', dob: '' });
+            setCourse('');
             setCgpa('');
         } catch (err) {
-            console.error('Error issuing certificate:', err);
-            alert('Error issuing certificate!');
+            console.error("Issuance Error:", err);
+            alert(err.message || 'Failed to issue certificate via API');
         } finally {
             setIsSubmitting(false);
         }
@@ -96,7 +150,7 @@ const IssueCertificate = () => {
                 // Normalizing headers to match database snake_case keys
                 const formattedData = jsonData.map(row => ({
                     student_name: row['student_name'] || row['studentName'] || row['Student Name'] || row['student name'] || row['Name'] || '',
-                    student_id: String(row['student_id'] || row['studentId'] || row['Student ID'] || row['student id'] || row['ID'] || ''),
+                    registration_number: String(row['registration_number'] || row['registrationNumber'] || row['student_id'] || row['Student ID'] || row['ID'] || ''),
                     program: row['program'] || row['Program'] || row['Course'] || 'B.Tech Computer Science and Engineering',
                     cgpa: String(row['cgpa'] || row['CGPA'] || row['Grade'] || '')
                 }));
@@ -174,6 +228,20 @@ const IssueCertificate = () => {
                         </h1>
                     </div>
                 </div>
+
+                {/* CORRECTION BANNER */}
+                {incomingCorrection && (
+                    <div className="bg-orange-950/20 border border-orange-500/30 text-orange-400 p-6 rounded-sm mb-12 animate-in fade-in slide-in-from-left-4 duration-500">
+                        <div className="flex items-center gap-3 mb-2">
+                            <Terminal className="w-4 h-4" />
+                            <span className="text-[10px] font-black tracking-[0.2em] uppercase">CORRECTION_MODE_ACTIVE</span>
+                        </div>
+                        <p className="text-xs font-mono leading-relaxed opacity-80 uppercase tracking-wider">
+                            Resolving request for: <span className="text-white font-bold">{incomingCorrection.corrected_reg_no || incomingCorrection.registration_number}</span>.
+                            Upon issuance, the record `{incomingCorrection.id.slice(0, 8)}` will be marked as <span className="text-green-500">RESOLVED</span>.
+                        </p>
+                    </div>
+                )}
 
                 {/* BULK IMPORT BANNER */}
                 <div className="mb-8">
@@ -254,36 +322,19 @@ const IssueCertificate = () => {
                             </div>
                         </div>
 
-                        {/* Row 2: Email */}
-                        <div className="flex flex-col">
-                            <label className="text-[10px] text-gray-500 tracking-[0.15em] uppercase mb-2">Email</label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-600">
-                                    <AtSign className="w-4 h-4" />
-                                </div>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    placeholder="USER@DOMAIN.COM"
-                                    className="bg-black border border-[#22221e] w-full pl-12 pr-4 py-3 text-xs text-gray-300 font-mono tracking-wider focus:outline-none focus:border-gray-500 transition-colors placeholder-gray-700"
-                                />
-                            </div>
-                        </div>
 
                         {/* Row 3: ID and DOB */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col">
                                 <label className="text-[10px] text-gray-500 tracking-[0.15em] uppercase mb-2">
-                                    STUDENT_ID
+                                    UNIVERSITY_REGISTRATION_NUMBER
                                 </label>
                                 <input
                                     type="text"
-                                    name="studentId"
-                                    value={formData.studentId}
+                                    name="registrationNumber"
+                                    value={formData.registrationNumber}
                                     onChange={handleInputChange}
-                                    placeholder="ID_XXXXXXXXXXXXXXX"
+                                    placeholder="REG_XXXXXXXXXXXXXXX"
                                     className="bg-black border border-[#22221e] px-4 py-3 text-xs text-gray-300 font-mono tracking-wider focus:outline-none focus:border-gray-500 transition-colors placeholder-gray-700"
                                 />
                             </div>
@@ -309,13 +360,13 @@ const IssueCertificate = () => {
                         {/* Row 4: Program and CGPA */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="flex flex-col">
-                                <label className="text-[10px] text-gray-500 tracking-[0.15em] uppercase mb-2">PROGRAM</label>
+                                <label className="text-[10px] text-gray-500 tracking-[0.15em] uppercase mb-2">COURSE_DEPARTMENT</label>
                                 <input
                                     type="text"
-                                    value={program}
-                                    onChange={(e) => setProgram(e.target.value)}
-                                    placeholder="e.g. B.Tech Computer Science"
-                                    className="bg-black border border-[#22221e] px-4 py-3 text-xs text-gray-300 font-mono tracking-wider focus:outline-none focus:border-gray-500 transition-colors placeholder-gray-700"
+                                    value={course}
+                                    readOnly
+                                    placeholder="AUTO-DETECTING..."
+                                    className="bg-black border border-[#22221e] px-4 py-3 text-xs text-yellow-600 font-mono tracking-wider focus:outline-none transition-colors placeholder-gray-700 opacity-80 cursor-not-allowed"
                                 />
                             </div>
                             <div className="flex flex-col">

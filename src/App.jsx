@@ -1,20 +1,32 @@
 import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import VerificationLanding from './components/VerificationLanding'
-import AuthGateway from './components/AuthGateway'
+import Login from './components/Login'
 import AdminDashboard from './components/AdminDashboard'
 import CertificateLogs from './components/CertificateLogs'
 import IssueCertificate from './components/IssueCertificate'
+import AdminRoute from './components/AdminRoute'
+import StudentDashboard from './components/StudentDashboard'
+import CertificateVerification from './components/CertificateVerification'
+import CorrectionForm from './components/CorrectionForm'
+import CertificateDownload from './components/CertificateDownload'
+import AuthGateway from './components/AuthGateway'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<VerificationLanding />} />
-        <Route path="/login" element={<AuthGateway />} />
-        <Route path="/dashboard" element={<AdminDashboard />} />
-        <Route path="/logs" element={<CertificateLogs />} />
-        <Route path="/issue" element={<IssueCertificate />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/logs" element={<AdminRoute><CertificateLogs /></AdminRoute>} />
+        <Route path="/issue" element={<AdminRoute><IssueCertificate /></AdminRoute>} />
+        <Route path="/student-portal" element={<StudentDashboard />} />
+        <Route path="/verify" element={<VerificationLanding />} />
+        <Route path="/verify-draft" element={<CertificateVerification />} />
+        <Route path="/correction" element={<CorrectionForm />} />
+        <Route path="/download" element={<CertificateDownload />} />
+        <Route path="/admin-login" element={<AuthGateway />} />
       </Routes>
     </BrowserRouter>
   )
