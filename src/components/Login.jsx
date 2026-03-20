@@ -57,7 +57,8 @@ const Login = () => {
                             { 
                                 id: data.user.id, 
                                 email: email, 
-                                registration_number: regNumber 
+                                registration_number: regNumber,
+                                full_name: fullName 
                             }
                         ]);
 

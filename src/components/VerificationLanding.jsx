@@ -85,17 +85,17 @@ const VerificationLanding = () => {
         setVerifiedData(null);
         console.log("Searching for ID:", id);
 
+        let certFound = false;
+
         try {
             const response = await fetch(`http://localhost:5000/api/certificates/verify/${id}`);
             const result = await response.json();
 
             if (!response.ok) {
                 setError(true);
-                return;
-            }
-
-            if (result.data) {
+            } else if (result.data) {
                 setVerifiedData(result.data);
+                certFound = true;
             } else {
                 setError(true);
             }
@@ -103,6 +103,22 @@ const VerificationLanding = () => {
             console.error("Verification error:", err);
             setError(true);
         } finally {
+            try {
+                // AWAIT THE INSERT AND CAPTURE THE ERROR OBJECT DIRECTLY
+                const { data: logData, error: logError } = await supabase.from('verification_logs').insert([
+                {
+                    certificate_id: id
+                }
+                ]);
+
+                if (logError) {
+                    console.error("SUPABASE LOG REJECTION:", logError);
+                } else {
+                    console.log("Successfully wrote to verification_logs!");
+                }
+            } catch (logError) {
+                console.error("Failed to log verification:", logError);
+            }
             setIsLoading(false);
         }
     };

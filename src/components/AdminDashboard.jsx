@@ -24,30 +24,13 @@ import { Link, useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
-    const [stats, setStats] = useState({ totalIssued: 0, totalVerifications: 0, totalRevoked: 0 });
-    const [activityLogs, setActivityLogs] = useState([]);
+    const [stats, setStats] = useState({ total: 0, active24h: 0, revoked: 0 });
+    const [recentLogs, setRecentLogs] = useState([]);
     const [correctionRequests, setCorrectionRequests] = useState([]);
     const [notifications, setNotifications] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            try {
-                const token = localStorage.getItem('adminToken');
-                const headers = { Authorization: `Bearer ${token}` };
-
-                // Fetch Stats
-                const statsRes = await axios.get('http://localhost:5000/api/certificates/stats', { headers });
-                setStats(statsRes.data);
-
-                // Fetch Activity Logs
-                const activityRes = await axios.get('http://localhost:5000/api/certificates/activity', { headers });
-                setActivityLogs(activityRes.data);
-            } catch (error) {
-                console.error("Dashboard Fetch Error:", error);
-            }
-        };
-
         const fetchCorrections = async () => {
             try {
                 const { data, error } = await supabase
@@ -64,19 +47,10 @@ const AdminDashboard = () => {
             }
         };
 
-        fetchDashboardData();
         fetchCorrections();
 
-        // Supabase Realtime: subscribe to changes on both tables
         const subscription = supabase
-            .channel('admin-dashboard-changes')
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'certificates' },
-                () => {
-                    fetchDashboardData();
-                }
-            )
+            .channel('admin-dashboard-corrections')
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'correction_requests' },
@@ -88,6 +62,66 @@ const AdminDashboard = () => {
 
         return () => {
             supabase.removeChannel(subscription);
+        };
+    }, []);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                // 1. Get Total Certificates
+                const { count: totalCount, error: totalErr } = await supabase
+                    .from('certificates')
+                    .select('*', { count: 'exact', head: true });
+                
+                // 2. Get Revoked Certificates
+                const { count: revokedCount, error: revErr } = await supabase
+                    .from('certificates')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'revoked');
+
+                // 3. Get Total 24H Verifications
+                const { count: verifCount, error: verifErr } = await supabase
+                    .from('verification_logs')
+                    .select('*', { count: 'exact', head: true });
+
+                // 4. Get Recent 5 Verification Logs
+                const { data: recentVerifs, error: recentErr } = await supabase
+                    .from('verification_logs')
+                    .select('*')
+                    .order('verified_at', { ascending: false })
+                    .limit(5);
+
+                if (totalErr || revErr || verifErr || recentErr) throw new Error("Database fetch error");
+
+                setStats({
+                    total: totalCount || 0,
+                    active24h: verifCount || 0,
+                    revoked: revokedCount || 0
+                });
+                setRecentLogs(recentVerifs || []);
+            } catch (error) {
+                console.error("Dashboard Fetch Error:", error.message);
+            }
+        };
+
+        fetchDashboardData();
+
+        // Realtime Subscription
+        const certSub = supabase.channel('cert_updates')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'certificates' }, () => {
+                fetchDashboardData();
+            })
+            .subscribe();
+
+        const verifSub = supabase.channel('verif_updates')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'verification_logs' }, () => {
+                fetchDashboardData();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(certSub);
+            supabase.removeChannel(verifSub);
         };
     }, []);
 
@@ -257,7 +291,7 @@ const AdminDashboard = () => {
                             </div>
                             <div className="flex items-end justify-between mt-auto">
                                 <div className="text-4xl font-bold text-white tracking-wide border-b-4 border-yellow-500 pb-1 w-3/4">
-                                    {stats.totalIssued || 0}
+                                    {stats.total}
                                 </div>
                             </div>
                         </div>
@@ -276,7 +310,7 @@ const AdminDashboard = () => {
                             </div>
                             <div className="flex items-end justify-between mt-auto">
                                 <div className="text-4xl font-bold text-white tracking-wide border-b-4 border-yellow-500 pb-1 w-3/4 flex items-end">
-                                    {stats.totalVerifications || 0} <span className="text-sm text-gray-600 font-normal ml-2 border-none"></span>
+                                    {stats.active24h} <span className="text-sm text-gray-600 font-normal ml-2 border-none"></span>
                                 </div>
                             </div>
                         </div>
@@ -300,7 +334,7 @@ const AdminDashboard = () => {
                             </div>
                             <div className="flex items-end justify-between mt-auto">
                                 <div className="text-4xl font-bold text-white tracking-wide w-3/4 relative">
-                                    {stats.totalRevoked || 0}
+                                    {stats.revoked}
                                     {/* Red progress bar below number */}
                                     <div className="absolute -bottom-2 left-0 w-full h-1 bg-[#2a1a1a]">
                                         <div className="h-full bg-red-500 w-[15%]"></div>
@@ -440,37 +474,21 @@ const AdminDashboard = () => {
                             </div>
 
                             {/* Table Body */}
-                            <div>
-                                {activityLogs && activityLogs.length > 0 ? (
-                                    activityLogs.map((log, index) => (
-                                        <div key={index} className="grid grid-cols-[120px_1fr_150px] px-6 py-4 border-b border-zinc-800/50 hover:bg-zinc-900/20 transition-colors text-sm items-center">
-                                            <div className="font-mono text-xs text-left">
-                                                {log.is_revoked ? (
-                                                    <span className="text-red-500">[REVOKED]</span>
-                                                ) : (
-                                                    <span className="text-green-500">[ISSUED]</span>
-                                                )}
-                                            </div>
-                                            <div className="text-zinc-300 text-left pl-4">
-                                                <span className="text-white font-medium">{log.student_name}</span>
-                                                <br />
-                                                <span className="text-zinc-500 text-xs font-mono mt-1 block">
-                                                    Student ID: {log.student_id}
-                                                </span>
-                                            </div>
-                                            <div className="text-zinc-500 font-mono text-xs text-right">
-                                                {new Date(log.created_at || log.issue_date).toLocaleString('en-US', {
-                                                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
-                                                })}
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="py-6 text-center text-zinc-600 font-mono text-sm border-b border-zinc-800/50">
-                                        [ NO_RECENT_RECORDS ]
-                                    </div>
-                                )}
-                            </div>
+                            <table className="w-full px-6">
+                                <tbody>
+                                    {recentLogs.length === 0 ? (
+                                        <tr><td colSpan="3" className="text-center py-4 text-zinc-600 text-xs">[ NO_RECENT_RECORDS ]</td></tr>
+                                    ) : (
+                                        recentLogs.map((log) => (
+                                            <tr key={log.id} className="border-b border-zinc-900/50">
+                                                <td className="py-4 text-[#facc15] text-xs font-mono">{log.status || 'VERIFIED'}</td>
+                                                <td className="py-4 text-zinc-400 text-xs font-mono">Record verified for {log.certificate_id}</td>
+                                                <td className="py-4 text-zinc-500 text-xs font-mono text-right">{new Date(log.verified_at || log.created_at || new Date()).toLocaleString()}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

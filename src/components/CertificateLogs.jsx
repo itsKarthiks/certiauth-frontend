@@ -36,39 +36,35 @@ const CertificateLogs = () => {
             setStatusFilter(location.state.filter);
         }
     }, [location.state]);
-    const fetchCertificates = async () => {
-        try {
-            const token = localStorage.getItem('adminToken');
-            const response = await axios.get('http://localhost:5000/api/certificates/all', {
-                params: { page, limit, search, status: statusFilter },
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setCertificates(response.data.data);
-            setTotal(response.data.total);
-        } catch (error) {
-            console.error('Error fetching certificates:', error);
-        }
-    };
-
     useEffect(() => {
+        const fetchCertificates = async () => {
+            try {
+                const { data, error } = await supabase.from('certificates').select('*');
+
+                console.log("RAW SUPABASE DATA:", data);
+                if (error) console.error("SUPABASE ERROR:", error);
+
+                if (error) throw error;
+                setCertificates(data || []);
+            } catch (error) {
+                console.error("CERTIFICATE LOGS FETCH ERROR:", error.message);
+            }
+        };
+
         fetchCertificates();
 
-        // Supabase Realtime: re-fetch whenever the certificates table changes
+        // Listen for live updates
         const subscription = supabase
-            .channel('admin-database-changes')
-            .on(
-                'postgres_changes',
-                { event: '*', schema: 'public', table: 'certificates' },
-                () => {
-                    fetchCertificates();
-                }
-            )
+            .channel('live_certificate_logs')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'certificates' }, () => {
+                fetchCertificates();
+            })
             .subscribe();
 
         return () => {
             supabase.removeChannel(subscription);
         };
-    }, [page, search, statusFilter]);
+    }, []);
 
     // Reset to page 1 when search or filter changes
     useEffect(() => {
@@ -81,7 +77,8 @@ const CertificateLogs = () => {
             await axios.patch(`http://localhost:5000/api/certificates/${certificateId}/toggle-status`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            fetchCertificates();
+            // The new useEffect with Supabase real-time will re-fetch automatically
+            // fetchCertificates(); 
             setOpenDropdown(null);
         } catch (error) {
             console.error('Error toggling status:', error);
@@ -210,60 +207,67 @@ const CertificateLogs = () => {
 
                     {/* Table Body */}
                     <div className="flex flex-col">
-                        {certificates.map((item) => (
-                            <div key={item.certificate_id} className="grid grid-cols-12 gap-4 px-8 py-6 border-b border-[#1a1a18] hover:bg-[#161614] transition-colors items-center text-xs relative">
+                        {certificates.length === 0 ? (
+                            <div className="text-center py-10 text-zinc-600 text-xs font-mono w-full">[ NO_CERTIFICATES_FOUND ]</div>
+                        ) : (
+                            certificates.map((cert) => (
+                                <div key={cert.registration_number} className="grid grid-cols-12 gap-4 px-8 py-4 border-b border-[#1a1a18] hover:bg-zinc-900/20 transition-colors items-center text-xs font-mono relative">
 
-                                {/* Student ID */}
-                                <div className="col-span-2 text-gray-400 font-mono tracking-widest">
-                                    {item.student_id}
-                                </div>
-
-                                {/* Recipient */}
-                                <div className="col-span-3 flex items-center">
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold tracking-wider mr-4 bg-gray-800 text-gray-300">
-                                        {item.student_name.split(' ').map(n => n[0]).join('')}
+                                    {/* Student ID */}
+                                    <div className="col-span-2 text-[#facc15] truncate">
+                                        {cert.registration_number || 'N/A'}
                                     </div>
-                                    <span className="font-bold text-gray-200 tracking-wide">{item.student_name}</span>
+
+                                    {/* Recipient */}
+                                    <div className="col-span-3 text-white uppercase truncate">
+                                        {cert.student_name || 'PENDING NAME'}
+                                    </div>
+
+                                    {/* Course */}
+                                    <div className="col-span-3 text-zinc-400 uppercase truncate">
+                                        {cert.course || cert.program || 'N/A'}
+                                    </div>
+
+                                    {/* Issue Date */}
+                                    <div className="col-span-2 text-zinc-500 truncate text-left flex items-center">
+                                        {cert.issued_at ? new Date(cert.issued_at).toLocaleDateString() : 'N/A'}
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="col-span-1 truncate flex items-center">
+                                        <span className={`px-2 py-1 rounded-sm text-[10px] tracking-wider uppercase ${cert.status === 'finalized' || cert.status === 'issued' ? 'bg-[#00ff66]/10 text-[#00ff66] border border-[#00ff66]/20' :
+                                                cert.status === 'revoked' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
+                                                    'bg-[#facc15]/10 text-[#facc15] border border-[#facc15]/20'
+                                            }`}>
+                                            {cert.status || 'PENDING'}
+                                        </span>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="col-span-1 flex items-center justify-end gap-3 truncate">
+                                        <button className="text-zinc-500 hover:text-white transition-colors">[ VIEW ]</button>
+
+                                        <button
+                                            onClick={() => setOpenDropdown(openDropdown === cert.id ? null : cert.id)}
+                                            className="p-2 text-gray-500 hover:text-white transition-colors"
+                                        >
+                                            <MoreVertical className="w-5 h-5" />
+                                        </button>
+
+                                        {openDropdown === cert.id && (
+                                            <div className="absolute right-12 top-16 z-50 bg-[#1a1a18] border border-[#333] shadow-2xl p-1 min-w-[150px]">
+                                                <button
+                                                    onClick={() => handleToggleStatus(cert.id)}
+                                                    className="w-full text-left px-4 py-2.5 text-[10px] font-bold tracking-widest uppercase hover:bg-black transition-colors text-white"
+                                                >
+                                                    {cert.status === 'revoked' ? 'Make Active' : 'Revoke Cert'}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-
-                                {/* Course */}
-                                <div className="col-span-3 flex flex-col justify-center">
-                                    <span className="text-gray-300 font-semibold mb-1 tracking-wide">{item.program}</span>
-                                </div>
-
-                                {/* Issue Date */}
-                                <div className="col-span-2 text-gray-400 font-mono tracking-widest text-left flex items-center">
-                                    {new Date(item.issue_date).toLocaleDateString()}
-                                </div>
-
-                                {/* Status */}
-                                <div className="col-span-1 flex items-center">
-                                    {renderStatusBadge(item.is_revoked)}
-                                </div>
-
-                                {/* Actions */}
-                                <div className="col-span-1 flex items-center justify-end">
-                                    <button
-                                        onClick={() => setOpenDropdown(openDropdown === item.certificate_id ? null : item.certificate_id)}
-                                        className="p-2 text-gray-500 hover:text-white transition-colors"
-                                    >
-                                        <MoreVertical className="w-5 h-5" />
-                                    </button>
-
-                                    {openDropdown === item.certificate_id && (
-                                        <div className="absolute right-12 top-16 z-50 bg-[#1a1a18] border border-[#333] shadow-2xl p-1 min-w-[150px]">
-                                            <button
-                                                onClick={() => handleToggleStatus(item.certificate_id)}
-                                                className="w-full text-left px-4 py-2.5 text-[10px] font-bold tracking-widest uppercase hover:bg-black transition-colors text-white"
-                                            >
-                                                {item.is_revoked ? 'Make Active' : 'Revoke Cert'}
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </div>
 
