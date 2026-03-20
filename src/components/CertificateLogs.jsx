@@ -15,6 +15,7 @@ import {
     Home
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 
 const CertificateLogs = () => {
     const navigate = useNavigate();
@@ -51,6 +52,22 @@ const CertificateLogs = () => {
 
     useEffect(() => {
         fetchCertificates();
+
+        // Supabase Realtime: re-fetch whenever the certificates table changes
+        const subscription = supabase
+            .channel('admin-database-changes')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'certificates' },
+                () => {
+                    fetchCertificates();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(subscription);
+        };
     }, [page, search, statusFilter]);
 
     // Reset to page 1 when search or filter changes

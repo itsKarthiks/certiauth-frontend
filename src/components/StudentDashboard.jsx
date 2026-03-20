@@ -24,7 +24,7 @@ const StudentDashboard = () => {
             try {
                 // 1. Get logged in user
                 const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-                
+
                 if (userError || !currentUser) {
                     navigate('/login');
                     return;
@@ -72,11 +72,108 @@ const StudentDashboard = () => {
             <div className="min-h-screen bg-[#0a0a09] flex items-center justify-center font-mono">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-10 h-10 text-yellow-500 animate-spin" />
-                    <span className="text-zinc-600 text-[10px] font-black tracking-widest uppercase">INITIALIZING_PROTOCOL...</span>
+                    <span className="text-zinc-600 text-[10px] font-black tracking-widest uppercase">INITIALIZINGL...</span>
                 </div>
             </div>
         );
     }
+    const hasCert = certificates.length > 0;
+    const finalizedCert = certificates.find(c => c.status === 'finalized');
+
+    if (finalizedCert) {
+        const dateString = finalizedCert.created_at || finalizedCert.issued_at || new Date().toISOString();
+        const formattedDate = new Date(dateString).toLocaleDateString('en-GB');
+        const qrUrl = `${window.location.origin}/verify?id=${finalizedCert.registration_number}`;
+        const iframeSrc = `/certvify-template.html?name=${encodeURIComponent(finalizedCert.student_name || '')}&regno=${encodeURIComponent(finalizedCert.registration_number || '')}&cgpa=${encodeURIComponent(finalizedCert.cgpa || '')}&date=${encodeURIComponent(formattedDate)}&qr=${encodeURIComponent(qrUrl)}`;
+
+        return (
+            <div className="min-h-screen bg-[#0a0a09] text-zinc-400 font-mono flex flex-col items-center">
+
+                {/* --- FULL WIDTH HEADER --- */}
+                <header className="w-full border-b border-[#222] bg-[#0a0a0a] px-8 py-4 flex items-center justify-between sticky top-0 z-50">
+                    <div className="flex items-center gap-4 group cursor-default">
+                        <div className="w-10 h-10 bg-[#facc15] flex items-center justify-center font-black text-black text-xl shadow-[0_0_15px_rgba(250,204,21,0.2)]">
+                            C_
+                        </div>
+                        <div>
+                            <h1 className="text-white font-black leading-none tracking-[0.2em] text-lg uppercase">CERTVIFY</h1>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                        <div className="hidden md:flex flex-col items-end">
+                            <span className="text-zinc-200 font-bold text-xs tracking-wider uppercase">{profile?.full_name || user?.email.split('@')[0]}</span>
+                            <span className="text-[9px] text-zinc-600 uppercase font-black tracking-widest mt-1">S_ID: {profile?.registration_number}</span>
+                        </div>
+                        <div
+                            onClick={handleLogout}
+                            className="p-3 bg-[#0f0f0e] border border-[#222] hover:border-red-500/50 transition-all cursor-pointer group flex items-center gap-3"
+                        >
+                            <span className="text-[10px] font-black text-zinc-600 group-hover:text-red-500 transition-colors uppercase tracking-widest hidden sm:block">Logout</span>
+                            <LogOut className="w-4 h-4 text-zinc-600 group-hover:text-red-500 transition-colors" />
+                        </div>
+                    </div>
+                </header>
+
+                {/* --- MAIN CONTENT AREA --- */}
+                <main className="w-full flex-grow flex flex-col items-center pt-10 pb-16 px-4 max-w-6xl">
+
+                    {/* Status Badge */}
+                    <div className="text-[#00ff66] text-xs font-bold tracking-[0.3em] uppercase mb-6 flex items-center gap-3 bg-[#00ff66]/5 px-6 py-2 border border-[#00ff66]/20 rounded-sm">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00ff66] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00ff66]"></span>
+                        </span>
+                        [•] STATUS: VERIFIED & FINALIZED
+                    </div>
+
+                    <div className="text-center mb-10">
+                        <h2 className="text-3xl font-black text-white tracking-[0.2em] uppercase mb-3">Student Dashboard</h2>
+                    </div>
+
+                    {/* Certificate Card */}
+                    <div className="w-full max-w-5xl bg-[#141414] border border-[#222] p-8 rounded-sm shadow-[0_0_80px_rgba(0,0,0,0.5)]">
+                        <div className="bg-white p-1 rounded-sm mb-10 shadow-inner">
+                            <iframe
+                                src={iframeSrc}
+                                className="w-full aspect-[1280/816] border-none overflow-hidden rounded-sm"
+                                title="Official Certificate"
+                            />
+                        </div>
+
+                        {/* Download Button */}
+                        <div className="flex flex-col gap-6">
+                            <button
+                                onClick={() => {
+                                    const iframe = document.querySelector('iframe');
+                                    if (iframe) {
+                                        iframe.contentWindow.focus();
+                                        iframe.contentWindow.print();
+                                    }
+                                }}
+                                className="w-full bg-[#facc15] hover:bg-[#eab308] text-black font-black py-5 text-sm tracking-[0.2em] transition-all transform active:scale-[0.99] rounded-sm flex items-center justify-center gap-4"
+                            >
+                                [ DOWNLOAD OFFICIAL CERTIFICATE (PDF) ]
+                            </button>
+
+                            <div className="flex flex-col sm:flex-row items-center justify-between text-[10px] text-zinc-700 font-bold tracking-[0.2em] uppercase border-t border-[#222] pt-6 gap-4">
+                                <span>DOC_REF: {finalizedCert.registration_number}</span>
+                                <div className="flex gap-4">
+                                    <span>FORMAT: PDF</span>
+                                    <span className="hidden sm:inline opacity-30">//</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Support Links */}
+                    <div className="mt-12 flex gap-10 text-[9px] text-zinc-700 font-black tracking-widest uppercase">
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[#0a0a09] text-zinc-400 font-mono flex flex-col">
 
@@ -96,7 +193,7 @@ const StudentDashboard = () => {
                         <span className="text-zinc-200 font-bold text-xs tracking-wider uppercase">{profile?.full_name || user?.email.split('@')[0]}</span>
                         <span className="text-[10px] text-zinc-600 uppercase font-bold tracking-tighter">{profile?.course || (profile?.registration_number ? 'REG_VERIFIED' : 'B.TECH_CSE_2026')}</span>
                     </div>
-                    <div 
+                    <div
                         onClick={handleLogout}
                         className="w-10 h-10 bg-zinc-900 border border-zinc-800 flex items-center justify-center hover:border-red-500/50 transition-colors cursor-pointer group"
                         title="Sign Out"
@@ -116,15 +213,29 @@ const StudentDashboard = () => {
                     <div className="lg:col-span-2 flex flex-col">
                         <div className="bg-[#0f0f0e] border border-zinc-800/50 flex flex-col h-full relative overflow-hidden">
                             {/* Decorative corner */}
-                            <div className="absolute top-0 right-0 w-16 h-16 bg-yellow-500/5 [clip-path:polygon(100%_0,0_0,100%_100%)]"></div>
+                            <div className={`absolute top-0 right-0 w-16 h-16 ${certificates[0]?.status === 'finalized' ? 'bg-green-500/5' : hasCert ? 'bg-yellow-500/5' : 'bg-zinc-800/10'} [clip-path:polygon(100%_0,0_0,100%_100%)]`}></div>
 
                             <div className="px-8 py-6 border-b border-zinc-800/50 flex items-center justify-between bg-black/20">
                                 <div className="flex items-center gap-3">
-                                    <Terminal className="w-4 h-4 text-yellow-500" />
+                                    <Terminal className={`w-4 h-4 ${certificates[0]?.status === 'finalized' ? 'text-green-500' : hasCert ? 'text-yellow-500' : 'text-zinc-600'}`} />
                                     <h2 className="text-white font-black tracking-[0.2em] uppercase text-xs">CERT_STATUS_MONITOR</h2>
                                 </div>
-                                <div className="px-3 py-1 border border-yellow-500/30 bg-yellow-500/5">
-                                    <span className="text-[9px] font-black text-yellow-500 tracking-[0.2em]">ACTION_REQUIRED</span>
+                                <div className={`px-3 py-1 border ${
+                                    certificates[0]?.status === 'finalized'
+                                        ? 'border-green-500/30 bg-green-500/5'
+                                        : hasCert
+                                            ? 'border-yellow-500/30 bg-yellow-500/5'
+                                            : 'border-zinc-800 bg-zinc-900/30'
+                                }`}>
+                                    <span className={`text-[9px] font-black tracking-[0.2em] ${
+                                        certificates[0]?.status === 'finalized'
+                                            ? 'text-green-500'
+                                            : hasCert
+                                                ? 'text-yellow-500'
+                                                : 'text-zinc-500'
+                                    }`}>
+                                        {certificates[0]?.status === 'finalized' ? 'DOCUMENT_READY' : hasCert ? 'ACTION_REQUIRED' : 'SYSTEM_STANDBY'}
+                                    </span>
                                 </div>
                             </div>
 
@@ -133,138 +244,163 @@ const StudentDashboard = () => {
                                     {/* Step 1 */}
                                     <div className="flex gap-8 pb-12 relative">
                                         <div className="absolute left-4 top-8 bottom-0 w-px bg-zinc-800"></div>
-                                        <div className="z-10 w-8 h-8 bg-zinc-900 border border-green-500/50 flex items-center justify-center flex-shrink-0">
-                                            <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
+                                        <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${
+                                            hasCert
+                                                ? 'bg-zinc-900 border border-green-500/50'
+                                                : 'bg-black border-2 border-yellow-500/60'
+                                        }`}>
+                                            {hasCert
+                                                ? <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
+                                                : <Clock className="w-4 h-4 text-[#facc15] animate-pulse" strokeWidth={2} />}
                                         </div>
                                         <div className="flex flex-col">
-                                            <h3 className="text-zinc-200 font-bold text-xs uppercase tracking-wider">01 // DATA_SYNC_COMPLETE</h3>
-                                            <p className="text-[11px] text-zinc-500 mt-2 leading-relaxed font-medium">Academic records verified and synchronized with Registrar database.</p>
+                                            <h3 className={`text-xs uppercase tracking-wider font-bold ${
+                                                hasCert ? 'text-zinc-200' : 'text-yellow-500/80'
+                                            }`}>
+                                                {hasCert ? '01 // DATA_SYNC_COMPLETE' : '01 // AWAITING_ADMIN_SYNC'}
+                                            </h3>
+                                            <p className="text-[11px] text-zinc-500 mt-2 leading-relaxed font-medium">
+                                                {hasCert
+                                                    ? 'Academic records verified and synchronized with Registrar database.'
+                                                    : 'Waiting for Registrar to upload academic records.'}
+                                            </p>
                                         </div>
                                     </div>
 
                                     {/* Step 2 */}
-                                    <div className="flex gap-8 pb-12 relative">
+                                    <div className={`flex gap-8 pb-12 relative ${!hasCert ? 'opacity-30' : ''}`}>
                                         <div className="absolute left-4 top-0 bottom-0 w-px bg-zinc-800"></div>
-                                        <div className="z-10 w-8 h-8 bg-zinc-900 border border-green-500/50 flex items-center justify-center flex-shrink-0">
-                                            <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
+                                        <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${
+                                            hasCert
+                                                ? 'bg-zinc-900 border border-green-500/50'
+                                                : 'bg-zinc-900 border border-zinc-700'
+                                        }`}>
+                                            {hasCert
+                                                ? <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
+                                                : <Check className="w-4 h-4 text-zinc-700" strokeWidth={3} />}
                                         </div>
                                         <div className="flex flex-col">
-                                            <h3 className="text-zinc-200 font-bold text-xs uppercase tracking-wider">02 // DRAFT_GENERATED</h3>
+                                            <h3 className={`text-xs uppercase tracking-wider font-bold ${
+                                                hasCert ? 'text-zinc-200' : 'text-zinc-600'
+                                            }`}>02 // DRAFT_GENERATED</h3>
                                             <p className="text-[11px] text-zinc-500 mt-2 leading-relaxed font-medium">Secure digital preview rendered via Certvify Engine.</p>
                                         </div>
                                     </div>
 
-                                    {/* Step 3 (Active) */}
-                                    <div className="flex gap-8 pb-12 relative">
+                                    {/* Step 3 */}
+                                    <div className={`flex gap-8 pb-12 relative ${!hasCert ? 'opacity-30' : ''}`}>
                                         <div className="absolute left-4 top-0 bottom-0 w-px bg-zinc-800"></div>
-                                        <div className="z-10 w-8 h-8 bg-black border-2 border-yellow-500 flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(250,204,21,0.2)]">
-                                            <Clock className="w-4 h-4 text-yellow-500" strokeWidth={3} />
+                                        <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${
+                                            !hasCert
+                                                ? 'bg-zinc-900 border border-zinc-700'
+                                                : certificates[0]?.status === 'finalized'
+                                                    ? 'bg-zinc-900 border border-green-500/50'
+                                                    : 'bg-black border-2 border-yellow-500 shadow-[0_0_15px_rgba(250,204,21,0.2)]'
+                                        }`}>
+                                            {!hasCert
+                                                ? <Clock className="w-4 h-4 text-zinc-700" strokeWidth={2} />
+                                                : certificates[0]?.status === 'finalized'
+                                                    ? <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
+                                                    : <Clock className="w-4 h-4 text-yellow-500" strokeWidth={3} />}
                                         </div>
                                         <div className="flex flex-col">
-                                            <h3 className="text-yellow-500 font-black text-xs uppercase tracking-widest">03 // PENDING_VERIFICATION</h3>
-                                            <p className="text-[11px] text-zinc-300 mt-2 leading-relaxed font-bold bg-yellow-500/5 p-3 border-l-2 border-yellow-500">
-                                                User intervention required: Review academic metadata and personal identifiers on the active draft.
+                                            <h3 className={`text-xs uppercase tracking-widest ${
+                                                !hasCert
+                                                    ? 'text-zinc-600 font-bold'
+                                                    : certificates[0]?.status === 'finalized'
+                                                        ? 'text-zinc-200 font-bold'
+                                                        : 'text-yellow-500 font-black'
+                                            }`}>03 // PENDING_VERIFICATION</h3>
+                                            <p className={`text-[11px] mt-2 leading-relaxed font-medium ${
+                                                !hasCert
+                                                    ? 'text-zinc-600'
+                                                    : certificates[0]?.status === 'finalized'
+                                                        ? 'text-zinc-500'
+                                                        : 'text-zinc-300 font-bold bg-yellow-500/5 p-3 border-l-2 border-yellow-500'
+                                            }`}>
+                                                {!hasCert
+                                                    ? 'Awaiting certificate draft from Registrar.'
+                                                    : certificates[0]?.status === 'finalized'
+                                                        ? 'Metadata review complete. Identity confirmation recorded.'
+                                                        : 'User intervention required: Review academic metadata and personal identifiers.'}
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* Step 4 */}
                                     <div className="flex gap-8">
-                                        <div className="z-10 w-8 h-8 bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0">
-                                            <GraduationCap className="w-4 h-4 text-zinc-700" />
+                                        <div className={`z-10 w-8 h-8 ${certificates[0]?.status === 'finalized' ? 'bg-black border-2 border-green-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : 'bg-zinc-900 border border-zinc-800'} flex items-center justify-center flex-shrink-0`}>
+                                            <GraduationCap className={`w-4 h-4 ${certificates[0]?.status === 'finalized' ? 'text-green-500' : 'text-zinc-700'}`} />
                                         </div>
-                                        <div className="flex flex-col opacity-40">
-                                            <h3 className="text-zinc-600 font-bold text-xs uppercase tracking-wider">04 // FINAL_BLOCKCHAIN_MINT</h3>
-                                            <p className="text-[11px] text-zinc-700 mt-2 leading-relaxed font-medium">Cryptographic signing and permanent registration on distributed ledger.</p>
+                                        <div className={`flex flex-col ${certificates[0]?.status === 'finalized' ? '' : 'opacity-40'}`}>
+                                            <h3 className={`${certificates[0]?.status === 'finalized' ? 'text-green-500 font-black' : 'text-zinc-600 font-bold'} text-xs uppercase tracking-wider`}>04 // FINAL_BLOCKCHAIN_MINT</h3>
+                                            <p className={`text-[11px] mt-2 leading-relaxed font-medium ${certificates[0]?.status === 'finalized' ? 'text-zinc-200 font-bold bg-green-500/5 p-3 border-l-2 border-green-500' : 'text-zinc-700'}`}>
+                                                {certificates[0]?.status === 'finalized'
+                                                    ? 'Cryptographic signing complete. Document registered on secure ledger.'
+                                                    : 'Awaiting final confirmation for cryptographic entry.'}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <button 
-                                onClick={() => certificates[0] && navigate(`/verify-draft?id=${certificates[0].registration_number}`)}
+                            <button
+                                onClick={() => {
+                                    if (certificates[0]) {
+                                        if (certificates[0].status === 'finalized') {
+                                            navigate(`/download?id=${certificates[0].registration_number}`);
+                                        } else {
+                                            navigate(`/preview?id=${certificates[0].registration_number}`);
+                                        }
+                                    }
+                                }}
                                 disabled={certificates.length === 0}
-                                className={`w-full bg-[#facc15] hover:bg-yellow-400 text-black font-black text-xs tracking-[0.3em] uppercase py-6 flex items-center justify-center gap-3 transition-all active:scale-[0.99] ${certificates.length === 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                className={`w-full ${certificates[0]?.status === 'finalized' ? 'bg-green-600 hover:bg-green-500' : 'bg-[#facc15] hover:bg-yellow-400'} text-black font-black text-xs tracking-[0.3em] uppercase py-6 flex items-center justify-center gap-3 transition-all active:scale-[0.99] ${certificates.length === 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                             >
-                                [ {certificates.length > 0 ? 'VERIFY_DRAFT_CERTIFICATE_LOCAL' : 'NO_CERTIFICATES_FOUND'} ]
+                                [ {certificates.length === 0 ? 'NO_CERTIFICATES_FOUND' : (certificates[0]?.status === 'finalized' ? 'DOWNLOAD_OFFICIAL_PDF' : 'VERIFY_&_CONFIRM_DETAILS')} ]
                                 <ArrowRight className="w-4 h-4" strokeWidth={3} />
                             </button>
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN: Recent Activity */}
+                    {/* RIGHT COLUMN: Student Dossier */}
                     <div className="flex flex-col">
-                        <div className="bg-[#0f0f0e] border border-zinc-800/50 flex flex-col h-full shadow-xl">
-                            <div className="px-8 py-6 border-b border-zinc-800/50 bg-black/20">
-                                <h2 className="text-white font-black tracking-[0.2em] uppercase text-xs">EVENT_LOG</h2>
+                        <div className="flex flex-col border border-zinc-800 bg-[#0d0d0d] p-8 h-full min-h-[500px]">
+                            <div className="text-xs tracking-widest text-white mb-10 font-black uppercase flex items-center">
+                                <span className="w-2 h-2 bg-[#facc15] mr-3"></span> STUDENT_DOSSIER
                             </div>
 
-                            <div className="p-4 flex flex-col gap-2 flex-1 overflow-y-auto">
-                                {/* Item 1 */}
-                                <div className="p-4 bg-black/40 border border-zinc-800/30 flex flex-col gap-2 hover:border-zinc-700 transition-colors">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-green-500 text-[8px] font-black tracking-widest uppercase border border-green-500/30 px-2 py-0.5">STATUS_ISSUED</span>
-                                        <span className="text-[9px] text-zinc-600 font-bold tracking-tighter uppercase">2H_AGO</span>
-                                    </div>
-                                    <h4 className="text-zinc-300 font-bold text-[10px] uppercase tracking-wider">Draft Certificate Generated</h4>
+                            <div className="flex-grow space-y-6">
+                                <div className="border-b border-zinc-800 pb-4">
+                                    <p className="text-zinc-600 text-[10px] font-black tracking-widest uppercase mb-1">LEGAL_NAME</p>
+                                    <p className="text-sm text-zinc-300 font-bold tracking-widest uppercase">
+                                        {user?.user_metadata?.full_name || profile?.full_name || user?.email?.split('@')[0] || '—'}
+                                    </p>
+                                </div>
+                                <div className="border-b border-zinc-800 pb-4">
+                                    <p className="text-zinc-600 text-[10px] font-black tracking-widest uppercase mb-1">UNIVERSITY_REG_NO</p>
+                                    <p className="text-sm text-zinc-300 font-mono tracking-widest uppercase">
+                                        {profile?.registration_number || '—'}
+                                    </p>
+                                </div>
+                                <div className="border-b border-zinc-800 pb-4">
+                                    <p className="text-zinc-600 text-[10px] font-black tracking-widest uppercase mb-1">ACADEMIC_PROGRAM</p>
+                                    <p className="text-sm text-zinc-300 font-bold tracking-widest uppercase">
+                                        B.TECH COMPUTER SCIENCE
+                                    </p>
                                 </div>
 
-                                {/* Item 2 */}
-                                <div className="p-4 bg-black/40 border border-zinc-800/30 flex flex-col gap-2 hover:border-zinc-700 transition-colors">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-blue-500 text-[8px] font-black tracking-widest uppercase border border-blue-500/30 px-2 py-0.5">GATEWAY_RECV</span>
-                                        <span className="text-[9px] text-zinc-600 font-bold tracking-tighter uppercase">1D_AGO</span>
-                                    </div>
-                                    <h4 className="text-zinc-300 font-bold text-[10px] uppercase tracking-wider">Bulk Data Upload Completed</h4>
-                                </div>
-
-                                {/* Item 3 */}
-                                <div className="p-4 bg-black/40 border border-zinc-800/30 flex flex-col gap-2 hover:border-zinc-700 transition-colors">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-zinc-600 text-[8px] font-black tracking-widest uppercase border border-zinc-800/30 px-2 py-0.5">SYS_SYNC</span>
-                                        <span className="text-[9px] text-zinc-600 font-bold tracking-tighter uppercase">3D_AGO</span>
-                                    </div>
-                                    <h4 className="text-zinc-300 font-bold text-[10px] uppercase tracking-wider">Profile synchronization with NAD</h4>
-                                </div>
                             </div>
 
-                            <div className="p-6 border-t border-zinc-800/50">
-                                <button className="w-full text-center text-[9px] font-black text-yellow-500/70 hover:text-yellow-500 tracking-[0.3em] uppercase transition-all flex items-center justify-center gap-2">
-                                    VIEW_ALL_RECORDS <ArrowRight className="w-3 h-3" />
-                                </button>
+                            <div className="mt-8 pt-6 border-t border-zinc-800 flex justify-between items-center">
+                                <span className="text-[9px] text-zinc-500 font-bold tracking-widest uppercase">IDENTITY: VERIFIED</span>
+                                <span className="w-2 h-2 rounded-full bg-[#00ff66] shadow-[0_0_8px_#00ff66]"></span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* BOTTOM STATS GRID */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="bg-[#0f0f0e] border border-zinc-800/50 p-10 flex flex-col gap-3 group hover:border-zinc-700 transition-colors">
-                        <div className="flex items-center gap-3 mb-2">
-                            <span className="w-1.5 h-1.5 bg-yellow-500"></span>
-                            <span className="text-[9px] text-zinc-600 font-black tracking-[0.3em] uppercase">ACADEMIC_SESSION</span>
-                        </div>
-                        <div className="text-2xl text-white font-black tracking-widest">2025_2026</div>
-                        <div className="w-full bg-zinc-900 h-1 mt-4 relative">
-                            <div className="absolute inset-0 bg-yellow-500/20 w-full"></div>
-                        </div>
-                    </div>
 
-                    <div className="bg-[#0f0f0e] border border-zinc-800/50 p-10 flex flex-col gap-3 group hover:border-zinc-700 transition-colors relative overflow-hidden">
-                        <div className="flex items-center gap-3 mb-2">
-                            <span className="w-1.5 h-1.5 bg-yellow-500"></span>
-                            <span className="text-[9px] text-zinc-600 font-black tracking-[0.3em] uppercase">SYSTEM_STATUS</span>
-                        </div>
-                        <div className="text-2xl text-white font-black tracking-widest flex items-center gap-4">
-                            PENDING_SIG
-                            <span className="relative flex h-3 w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
-                            </span>
-                        </div>
-                        <div className="text-[9px] text-zinc-700 font-bold uppercase mt-4">AWAITING_CRYPTOGRAPHIC_CONFIRMATION</div>
-                    </div>
-                </div>
 
             </main>
 

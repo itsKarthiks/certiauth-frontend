@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { Shield, FileText, User, Lock, ArrowRight } from 'lucide-react';
+import { Shield, FileText, User, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
-    const [isLogin, setIsLogin] = useState(false); // Toggle between Register (false) and Login (true)
+    const [isLogin, setIsLogin] = useState(true); // Toggle between Register (false) and Login (true)
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [regNumber, setRegNumber] = useState('');
+    const [fullName, setFullName] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleAuth = async (e) => {
@@ -36,6 +38,11 @@ const Login = () => {
                 const { data, error: authError } = await supabase.auth.signUp({
                     email,
                     password,
+                    options: {
+                        data: {
+                            full_name: fullName,
+                        }
+                    }
                 });
 
                 if (authError) {
@@ -131,6 +138,24 @@ const Login = () => {
                             </div>
                         )}
 
+                        {/* Full Legal Name Field - Register Only */}
+                        {!isLogin && (
+                            <div className="space-y-2">
+                                <label className="text-[9px] text-zinc-500 font-black tracking-widest uppercase ml-1">Full Legal Name</label>
+                                <div className="relative group">
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-yellow-600 transition-colors" />
+                                    <input
+                                        type="text"
+                                        value={fullName}
+                                        onChange={(e) => setFullName(e.target.value)}
+                                        className="w-full bg-black border border-zinc-800 text-white pl-12 pr-4 py-4 text-xs font-mono focus:border-yellow-500/50 outline-none transition-all placeholder:text-zinc-800"
+                                        placeholder="e.g., JOHN ALEX DOE"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         {/* Student Mail Field */}
                         <div className="space-y-2">
                             <label className="text-[9px] text-zinc-500 font-black tracking-widest uppercase ml-1">Student Mail</label>
@@ -153,13 +178,20 @@ const Login = () => {
                             <div className="relative group">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-yellow-600 transition-colors" />
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-black border border-zinc-800 text-white pl-12 pr-4 py-4 text-xs font-mono focus:border-yellow-500/50 outline-none transition-all placeholder:text-zinc-800 tracking-[0.3em]"
+                                    className="w-full bg-black border border-zinc-800 text-white pl-12 pr-12 py-4 text-xs font-mono focus:border-yellow-500/50 outline-none transition-all placeholder:text-zinc-800 tracking-[0.3em]"
                                     placeholder="••••••••••••"
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-[#facc15] transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
                             </div>
                         </div>
 
@@ -176,14 +208,14 @@ const Login = () => {
 
                     {/* Footer Links */}
                     <div className="mt-12 pt-8 border-t border-zinc-900 border-dashed flex flex-col items-center gap-3">
-                        <button 
+                        <button
                             onClick={() => {
                                 setIsLogin(!isLogin);
                                 setErrorMsg('');
                             }}
-                            className="text-[9px] text-zinc-600 hover:text-zinc-200 transition-colors font-black tracking-widest uppercase"
+                            className="border border-zinc-800 bg-transparent text-zinc-500 hover:text-white hover:border-zinc-500 font-mono text-[10px] font-black tracking-[0.2em] py-3 px-8 uppercase transition-colors"
                         >
-                            {isLogin ? "Don't have an account? Create one" : "Already have an account? Login"}
+                            {isLogin ? '[ CREATE_ACCOUNT ]' : '[ STUDENT_LOGIN ]'}
                         </button>
                         <Link to="/admin-login" className="text-[9px] text-zinc-600 hover:text-red-500 transition-colors font-black tracking-widest uppercase pt-2">
                             <span className="text-zinc-500 font-bold block bg-zinc-900/50 px-4 py-2 border border-zinc-800/50 hover:border-red-900/50 transition-all">ADMIN LOGIN</span>

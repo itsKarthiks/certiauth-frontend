@@ -66,6 +66,29 @@ const AdminDashboard = () => {
 
         fetchDashboardData();
         fetchCorrections();
+
+        // Supabase Realtime: subscribe to changes on both tables
+        const subscription = supabase
+            .channel('admin-dashboard-changes')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'certificates' },
+                () => {
+                    fetchDashboardData();
+                }
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'correction_requests' },
+                () => {
+                    fetchCorrections();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(subscription);
+        };
     }, []);
 
     const handleExport = async () => {

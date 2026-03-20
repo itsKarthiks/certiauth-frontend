@@ -7,7 +7,7 @@ import CertificateLogs from './components/CertificateLogs'
 import IssueCertificate from './components/IssueCertificate'
 import AdminRoute from './components/AdminRoute'
 import StudentDashboard from './components/StudentDashboard'
-import CertificateVerification from './components/CertificateVerification'
+import CertificatePreview from './components/CertificatePreview'
 import CorrectionForm from './components/CorrectionForm'
 import CertificateDownload from './components/CertificateDownload'
 import AuthGateway from './components/AuthGateway'
@@ -23,7 +23,7 @@ function App() {
         <Route path="/issue" element={<AdminRoute><IssueCertificate /></AdminRoute>} />
         <Route path="/student-portal" element={<StudentDashboard />} />
         <Route path="/verify" element={<VerificationLanding />} />
-        <Route path="/verify-draft" element={<CertificateVerification />} />
+        <Route path="/preview" element={<CertificatePreview />} />
         <Route path="/correction" element={<CorrectionForm />} />
         <Route path="/download" element={<CertificateDownload />} />
         <Route path="/admin-login" element={<AuthGateway />} />
