@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { 
     CheckSquare, 
@@ -10,23 +10,91 @@ import {
     CheckCircle2
 } from 'lucide-react';
 
-const CorrectionForm = () => {
+const FormRow = ({ id, label, placeholder, isSelected, fieldType = "text", value, onToggle, onChange }) => {
+    const isCgpa = id === 'cgpa';
+    
+    return (
+        <div className={`mb-4 transition-all duration-300 ${isSelected && isCgpa ? 'border border-yellow-500/30 bg-yellow-500/5 p-6' : ''}`}>
+            <div 
+                className="flex items-center gap-4 cursor-pointer group select-none"
+                onClick={() => onToggle(id)}
+            >
+                <div className="flex-shrink-0">
+                    {isSelected ? (
+                        <CheckSquare className="w-5 h-5 text-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.2)]" />
+                    ) : (
+                        <Square className="w-5 h-5 text-zinc-700 group-hover:text-zinc-500 transition-colors" />
+                    )}
+                </div>
+                <span className={`text-xs font-black tracking-widest uppercase transition-colors ${isSelected ? 'text-white' : 'text-zinc-600'}`}>
+                    {label.replace('_', ' ')}
+                </span>
+            </div>
+
+            {isSelected && (
+                <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+                    <input 
+                        type={fieldType}
+                        value={value}
+                        onChange={(e) => onChange(id, e.target.value)}
+                        placeholder={placeholder}
+                        className={`w-full bg-black border border-zinc-800 text-white p-4 text-xs font-mono outline-none focus:border-yellow-500/50 transition-colors placeholder:text-zinc-800 tracking-wider`}
+                    />
+                    {isCgpa && (
+                        <div className="mt-2 text-[9px] text-yellow-600 font-bold uppercase tracking-tighter">
+                            [ SYSTEM_NOTICE: ENTER_EXACT_CGPA_POST_REV_MATCH ]
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
+const CorrectionForm = ({ certData: propCertData }) => {
     const navigate = useNavigate();
-    const [selections, setSelections] = useState({ 
-        name: false, 
-        regNo: false, 
-        course: false, 
-        cgpa: false 
+    const location = useLocation();
+
+    const [certData, setCertData] = useState(propCertData || location.state?.certData || location.state?.studentData || null);
+
+    const [selections, setSelections] = useState({
+        name: false,
+        regNo: false,
+        course: false,
+        cgpa: false
     });
-    const [corrections, setCorrections] = useState({ 
-        name: '', 
-        regNo: '', 
-        course: '', 
-        cgpa: '' 
+    const [corrections, setCorrections] = useState({
+        name: '',
+        regNo: '',
+        course: '',
+        cgpa: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const studentEmail = 'karthik.s@ucek.edu.in'; // Placeholder for now
+    const [authUserEmail, setAuthUserEmail] = useState('');
+
+    useEffect(() => {
+        const fetchStudentData = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setAuthUserEmail(user.email);
+
+                if (!certData) {
+                    const { data: prof } = await supabase.from('profiles').select('registration_number').eq('id', user.id).single();
+                    if (prof?.registration_number) {
+                        const { data: cert } = await supabase.from('certificates').select('*').eq('registration_number', prof.registration_number).single();
+                        if (cert) {
+                            setCertData(cert);
+                        }
+                    }
+                }
+            }
+        };
+        fetchStudentData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const studentEmail = certData?.email || certData?.student_email || authUserEmail || 'UNKNOWN_EMAIL';
 
     const toggleSelection = (field) => {
         setSelections(prev => ({ ...prev, [field]: !prev[field] }));
@@ -39,7 +107,7 @@ const CorrectionForm = () => {
     const handleSubmitCorrection = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        
+
         try {
             const { error } = await supabase
                 .from('correction_requests')
@@ -62,50 +130,11 @@ const CorrectionForm = () => {
         }
     };
 
-    const FormRow = ({ id, label, placeholder, isSelected, fieldType = "text" }) => {
-        const isCgpa = id === 'cgpa';
-        
-        return (
-            <div className={`mb-4 transition-all duration-300 ${isSelected && isCgpa ? 'border border-yellow-500/30 bg-yellow-500/5 p-6' : ''}`}>
-                <div 
-                    className="flex items-center gap-4 cursor-pointer group select-none"
-                    onClick={() => toggleSelection(id)}
-                >
-                    <div className="flex-shrink-0">
-                        {isSelected ? (
-                            <CheckSquare className="w-5 h-5 text-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.2)]" />
-                        ) : (
-                            <Square className="w-5 h-5 text-zinc-700 group-hover:text-zinc-500 transition-colors" />
-                        )}
-                    </div>
-                    <span className={`text-xs font-black tracking-widest uppercase transition-colors ${isSelected ? 'text-white' : 'text-zinc-600'}`}>
-                        {label.replace('_', ' ')}
-                    </span>
-                </div>
-
-                {isSelected && (
-                    <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
-                        <input 
-                            type={fieldType}
-                            value={corrections[id]}
-                            onChange={(e) => handleInputChange(id, e.target.value)}
-                            placeholder={placeholder}
-                            className={`w-full bg-black border border-zinc-800 text-white p-4 text-xs font-mono outline-none focus:border-yellow-500/50 transition-colors placeholder:text-zinc-800 tracking-wider`}
-                        />
-                        {isCgpa && (
-                            <div className="mt-2 text-[9px] text-yellow-600 font-bold uppercase tracking-tighter">
-                                [ SYSTEM_NOTICE: ENTER_EXACT_CGPA_POST_REV_MATCH ]
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
-        );
-    };
+    // FormRow decoupled from this component to prevent unnecessary remounting on typing
 
     return (
         <div className="min-h-screen bg-[#0a0a09] text-zinc-400 font-mono flex flex-col items-center relative overflow-hidden">
-            
+
             {/* --- HEADER --- */}
             <header className="w-full border-b border-zinc-800/50 bg-[#0a0a09] px-8 py-4 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate('/student-portal')}>
@@ -120,8 +149,12 @@ const CorrectionForm = () => {
 
                 <div className="flex items-center gap-6">
                     <div className="hidden md:flex flex-col items-end">
-                        <span className="text-zinc-200 font-bold text-xs tracking-wider">KARTHIK_S</span>
-                        <span className="text-[10px] text-zinc-600 uppercase font-bold tracking-tighter">B.TECH_CSE_2026</span>
+                        <span className="text-zinc-200 font-bold text-xs tracking-wider uppercase">
+                            {certData?.student_name || 'UNKNOWN_STUDENT'}
+                        </span>
+                        <span className="text-[10px] text-zinc-600 uppercase font-bold tracking-tighter">
+                            {certData?.course || certData?.program || 'UNKNOWN_PROGRAM'}
+                        </span>
                     </div>
                     <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 flex items-center justify-center border-yellow-500/20">
                         <User className="w-5 h-5 text-zinc-500" />
@@ -161,18 +194,27 @@ const CorrectionForm = () => {
                                         label="FULL_NAME_CORRECTION" 
                                         placeholder="ENTER_EXACT_LEGAL_SPELLING" 
                                         isSelected={selections.name}
+                                        value={corrections.name}
+                                        onToggle={toggleSelection}
+                                        onChange={handleInputChange}
                                     />
                                     <FormRow 
                                         id="regNo" 
                                         label="REGISTRATION_NUMBER" 
                                         placeholder="ENTER_VALID_REG_ID_FORMAT" 
                                         isSelected={selections.regNo}
+                                        value={corrections.regNo}
+                                        onToggle={toggleSelection}
+                                        onChange={handleInputChange}
                                     />
                                     <FormRow 
                                         id="course" 
                                         label="PROGRAM_MAJOR" 
                                         placeholder="ENTER_REVISED_COURSE_TITLE" 
                                         isSelected={selections.course}
+                                        value={corrections.course}
+                                        onToggle={toggleSelection}
+                                        onChange={handleInputChange}
                                     />
                                     <FormRow 
                                         id="cgpa" 
@@ -180,6 +222,9 @@ const CorrectionForm = () => {
                                         placeholder="ENTER_8.XX_FORMAT" 
                                         isSelected={selections.cgpa}
                                         fieldType="number"
+                                        value={corrections.cgpa}
+                                        onToggle={toggleSelection}
+                                        onChange={handleInputChange}
                                     />
 
                                     <div className="flex gap-6 mt-12">

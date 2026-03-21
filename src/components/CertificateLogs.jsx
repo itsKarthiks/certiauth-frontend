@@ -25,9 +25,11 @@ const CertificateLogs = () => {
     const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
     const limit = 5;
-    const [search, setSearch] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [openDropdown, setOpenDropdown] = useState(null); // Tracks which row's 3-dot menu is open
+    const [openMenuId, setOpenMenuId] = useState(null);
+    const [revokeConfirmId, setRevokeConfirmId] = useState(null);
     const location = useLocation();
 
     // Handle initial filter from navigation state
@@ -69,7 +71,27 @@ const CertificateLogs = () => {
     // Reset to page 1 when search or filter changes
     useEffect(() => {
         setPage(1);
-    }, [search, statusFilter]);
+    }, [searchTerm, statusFilter]);
+
+    const triggerRevokeModal = (regNo) => {
+        setRevokeConfirmId(regNo);
+        setOpenMenuId(null); // Close the dropdown menu
+    };
+
+    const executeRevoke = async () => {
+        try {
+            const { error } = await supabase
+                .from('certificates')
+                .update({ status: 'revoked' })
+                .eq('registration_number', revokeConfirmId);
+            
+            if (error) throw error;
+            setRevokeConfirmId(null); // Close modal on success
+        } catch (err) {
+            console.error("Failed to revoke:", err.message);
+            alert("Failed to revoke certificate.");
+        }
+    };
 
     const handleToggleStatus = async (certificateId) => {
         try {
@@ -103,6 +125,20 @@ const CertificateLogs = () => {
             );
         }
     };
+
+    const filteredCerts = certificates.filter(cert => {
+        const matchesSearch = (
+            cert.registration_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cert.student_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            cert.course?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        const matchesStatus = 
+            statusFilter === 'ALL' ? true :
+            statusFilter === 'ACTIVE' ? cert.status === 'finalized' || cert.status === 'issued' :
+            statusFilter === 'REVOKED' ? cert.status === 'revoked' : true;
+        
+        return matchesSearch && matchesStatus;
+    });
 
     return (
         <div className="min-h-screen bg-[#0a0a09] text-gray-300 font-mono flex flex-col pt-6 px-10">
@@ -156,8 +192,8 @@ const CertificateLogs = () => {
                         <input
                             type="text"
                             placeholder="Search by ID, Name, or Course..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             className="bg-transparent border-none outline-none text-xs text-gray-300 w-full font-mono placeholder-gray-600"
                         />
                     </div>
@@ -207,10 +243,10 @@ const CertificateLogs = () => {
 
                     {/* Table Body */}
                     <div className="flex flex-col">
-                        {certificates.length === 0 ? (
+                        {filteredCerts.length === 0 ? (
                             <div className="text-center py-10 text-zinc-600 text-xs font-mono w-full">[ NO_CERTIFICATES_FOUND ]</div>
                         ) : (
-                            certificates.map((cert) => (
+                            filteredCerts.map((cert) => (
                                 <div key={cert.registration_number} className="grid grid-cols-12 gap-4 px-8 py-4 border-b border-[#1a1a18] hover:bg-zinc-900/20 transition-colors items-center text-xs font-mono relative">
 
                                     {/* Student ID */}
@@ -244,23 +280,23 @@ const CertificateLogs = () => {
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="col-span-1 flex items-center justify-end gap-3 truncate">
-                                        <button className="text-zinc-500 hover:text-white transition-colors">[ VIEW ]</button>
-
-                                        <button
-                                            onClick={() => setOpenDropdown(openDropdown === cert.id ? null : cert.id)}
-                                            className="p-2 text-gray-500 hover:text-white transition-colors"
+                                    <div className="col-span-1 flex items-center justify-end gap-3 relative">
+                                        
+                                        <button 
+                                            onClick={() => setOpenMenuId(openMenuId === cert.registration_number ? null : cert.registration_number)}
+                                            className="text-zinc-500 hover:text-white px-2 cursor-pointer"
                                         >
-                                            <MoreVertical className="w-5 h-5" />
+                                            ⋮
                                         </button>
 
-                                        {openDropdown === cert.id && (
-                                            <div className="absolute right-12 top-16 z-50 bg-[#1a1a18] border border-[#333] shadow-2xl p-1 min-w-[150px]">
+                                        {openMenuId === cert.registration_number && (
+                                            <div className="absolute right-8 top-6 bg-[#0a0a0a] border border-zinc-800 z-50 rounded-sm shadow-2xl overflow-hidden">
                                                 <button
-                                                    onClick={() => handleToggleStatus(cert.id)}
-                                                    className="w-full text-left px-4 py-2.5 text-[10px] font-bold tracking-widest uppercase hover:bg-black transition-colors text-white"
+                                                    onClick={() => triggerRevokeModal(cert.registration_number)}
+                                                    disabled={cert.status === 'revoked'}
+                                                    className="block w-full text-left px-6 py-3 text-xs text-red-500 hover:bg-zinc-900 transition-colors disabled:opacity-30 disabled:cursor-not-allowed uppercase whitespace-nowrap"
                                                 >
-                                                    {cert.status === 'revoked' ? 'Make Active' : 'Revoke Cert'}
+                                                    {cert.status === 'revoked' ? 'Already Revoked' : 'Revoke Cert'}
                                                 </button>
                                             </div>
                                         )}
@@ -274,7 +310,7 @@ const CertificateLogs = () => {
                 {/* FOOTER (PAGINATION) */}
                 <div className="flex items-center justify-between py-6 mb-8 mt-2">
                     <div className="text-[10px] text-gray-500 font-mono tracking-widest">
-                        Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} results
+                        Showing {filteredCerts.length > 0 ? 1 : 0} to {filteredCerts.length} of {filteredCerts.length} results
                     </div>
 
                     <div className="flex border border-[#22221e] bg-[#11110f] font-mono text-xs">
@@ -299,6 +335,42 @@ const CertificateLogs = () => {
                 </div>
 
             </div>
+
+            {/* Custom Revoke Confirmation Modal */}
+            {revokeConfirmId && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="bg-[#0a0a0a] border border-red-900/50 w-full max-w-md p-6 shadow-2xl relative">
+                        {/* Top Accent Line */}
+                        <div className="absolute top-0 left-0 w-full h-1 bg-red-500/50"></div>
+                        
+                        <div className="flex items-center gap-3 mb-4 text-red-500 font-mono">
+                            <span className="text-xl">⚠️</span>
+                            <h3 className="text-sm font-bold tracking-widest uppercase">Confirm Revocation</h3>
+                        </div>
+                        
+                        <p className="text-zinc-400 text-xs font-mono leading-relaxed mb-8">
+                            You are about to permanently revoke the certificate for <span className="text-white font-bold">{revokeConfirmId}</span>. This action will invalidate the cryptographic signature and mark the record as blacklisted in the public registry. 
+                            <br/><br/>
+                            Do you wish to proceed?
+                        </p>
+                        
+                        <div className="flex justify-end gap-4 font-mono text-xs">
+                            <button 
+                                onClick={() => setRevokeConfirmId(null)}
+                                className="px-4 py-2 text-zinc-400 hover:text-white transition-colors uppercase tracking-wider"
+                            >
+                                [ Cancel ]
+                            </button>
+                            <button 
+                                onClick={executeRevoke}
+                                className="px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500 hover:text-black transition-colors uppercase tracking-wider font-bold"
+                            >
+                                [ Confirm Revoke ]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

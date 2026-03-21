@@ -11,6 +11,8 @@ import CertificatePreview from './components/CertificatePreview'
 import CorrectionForm from './components/CorrectionForm'
 import CertificateDownload from './components/CertificateDownload'
 import AuthGateway from './components/AuthGateway'
+import AdminNotifications from './components/AdminNotifications';
+import AdminResolve from './components/AdminResolve';
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
         <Route path="/correction" element={<CorrectionForm />} />
         <Route path="/download" element={<CertificateDownload />} />
         <Route path="/admin-login" element={<AuthGateway />} />
+        <Route path="/notifications" element={<AdminNotifications />} />
+        <Route path="/resolve" element={<AdminResolve />} />
       </Routes>
     </BrowserRouter>
   )

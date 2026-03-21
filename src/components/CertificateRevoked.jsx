@@ -1,16 +1,16 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 
-const CertificateRevoked = ({ data, onRetry }) => {
+const CertificateRevoked = ({ certData, onBack }) => {
     // Fallback data if none provided
-    const certId = data?.certificate_id || 'UNKNOWN-ID';
-    const subject = data?.student_name || 'Unknown';
-    const revokedOn = data?.revoked_at || data?.revoked_on || 'Unknown Date';
-    const reason = data?.revocation_reason || data?.reason || 'Unknown Reason';
+    const certId = certData?.registration_number || 'UNKNOWN-ID';
+    const subject = certData?.student_name || 'Unknown Student';
+    const revokedOn = certData?.updated_at ? new Date(certData.updated_at).toLocaleDateString() : new Date().toLocaleDateString();
+    const reason = certData?.revocation_reason || certData?.reason || 'Unknown Reason';
 
     return (
         <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto">
-            <div className="bg-[#121212] w-full border-t-4 border-[#facc15] rounded-b-sm shadow-2xl pb-8 relative overflow-hidden">
+            <div className="bg-[#0a0a0a] w-full border-t-4 border-[#facc15] rounded-b-sm shadow-2xl pb-8 relative overflow-hidden">
 
                 {/* Subtle top gradient glow */}
                 <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-yellow-900/10 to-transparent pointer-events-none"></div>
@@ -18,7 +18,7 @@ const CertificateRevoked = ({ data, onRetry }) => {
                 <div className="px-10 pt-12 pb-6 flex flex-col items-center relative z-10">
 
                     {/* Icon Area */}
-                    <div className="w-16 h-16 bg-[#0a0a0a] border border-[#22221e] relative flex items-center justify-center mb-8">
+                    <div className="w-16 h-16 bg-black border border-[#22221e] relative flex items-center justify-center mb-8">
                         <AlertTriangle className="w-8 h-8 text-[#facc15]" strokeWidth={2.5} />
                         {/* Tiny yellow dot indicator */}
                         <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full border border-[#121212]"></div>
@@ -30,16 +30,16 @@ const CertificateRevoked = ({ data, onRetry }) => {
                     </h2>
 
                     <div className="text-center mb-10">
-                        <p className="text-[10px] text-gray-400 font-mono tracking-widest uppercase mb-2">
-                            WARNING_202: PREVIOUSLY_VALID
+                        <p className="text-sm text-red-500 font-bold font-mono tracking-widest uppercase mb-3">
+                            [ WARNING: PREVIOUSLY_VALID ]
                         </p>
                         <p className="text-[11px] text-gray-500 font-mono tracking-wide max-w-xs mx-auto leading-relaxed">
-                            This certificate has been officially revoked by the root authority.
+                            This certificate has been officially revoked by the university administration and is no longer valid.
                         </p>
                     </div>
 
                     {/* Data Box */}
-                    <div className="w-full border border-dashed border-[#ffffff15] rounded-sm p-6 mb-10 bg-[#0a0a0a]">
+                    <div className="w-full border border-dashed border-[#ffffff15] rounded-sm p-6 mb-10 bg-black">
 
                         {/* Top: Cert ID & Badge */}
                         <div className="flex justify-between items-start mb-6">
@@ -91,28 +91,18 @@ const CertificateRevoked = ({ data, onRetry }) => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="w-full grid grid-cols-2 gap-4">
-                        <button className="w-full bg-transparent border border-[#333333] hover:bg-[#1a1a1a] text-white font-extrabold text-[11px] tracking-widest uppercase py-4 transition-colors">
-                            CONTACT_ADMIN
-                        </button>
+                    <div className="w-full">
                         <button
-                            onClick={onRetry}
-                            className="w-full bg-[#facc15] hover:bg-yellow-400 text-black font-extrabold text-[11px] tracking-widest uppercase py-4 transition-colors"
+                            onClick={onBack}
+                            className="w-full py-3 bg-[#facc15] text-black font-bold font-mono text-xs uppercase tracking-widest hover:bg-white transition-colors"
                         >
-                            NEW_SEARCH
+                            [ NEW_SEARCH ]
                         </button>
                     </div>
 
                 </div>
 
             </div>
-
-            {/* Card Footer */}
-            <div className="w-full flex justify-between items-center mt-6 px-2 text-[9px] font-mono tracking-widest uppercase">
-                <span className="text-gray-600 font-bold">TERMINAL_ID: #002</span>
-                <span className="text-[#facc15] font-bold">STATUS: WARN</span>
-            </div>
-
         </div>
     );
 };

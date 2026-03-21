@@ -18,7 +18,8 @@ import {
     AlertTriangle,
     QrCode,
     XOctagon,
-    Download
+    Download,
+    LogOut
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -28,7 +29,6 @@ const AdminDashboard = () => {
     const [recentLogs, setRecentLogs] = useState([]);
     const [correctionRequests, setCorrectionRequests] = useState([]);
     const [notifications, setNotifications] = useState([]);
-    const [showDropdown, setShowDropdown] = useState(false);
 
     useEffect(() => {
         const fetchCorrections = async () => {
@@ -68,39 +68,48 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                // 1. Get Total Certificates
-                const { count: totalCount, error: totalErr } = await supabase
+                // 1. Total Certificates
+                const { count: totalCount } = await supabase
                     .from('certificates')
                     .select('*', { count: 'exact', head: true });
                 
-                // 2. Get Revoked Certificates
-                const { count: revokedCount, error: revErr } = await supabase
+                // 2. Revoked Certificates
+                const { count: revokedCount } = await supabase
                     .from('certificates')
                     .select('*', { count: 'exact', head: true })
                     .eq('status', 'revoked');
 
-                // 3. Get Total 24H Verifications
-                const { count: verifCount, error: verifErr } = await supabase
+                // 3. Verification Count (for the middle top card)
+                const { count: verifCount } = await supabase
                     .from('verification_logs')
                     .select('*', { count: 'exact', head: true });
 
-                // 4. Get Recent 5 Verification Logs
-                const { data: recentVerifs, error: recentErr } = await supabase
-                    .from('verification_logs')
+                // 4. Recent Certificates Log (FIXED: ordered by issued_at)
+                const { data: recentCerts, error: recentErr } = await supabase
+                    .from('certificates')
                     .select('*')
-                    .order('verified_at', { ascending: false })
+                    .order('issued_at', { ascending: false })
                     .limit(5);
 
-                if (totalErr || revErr || verifErr || recentErr) throw new Error("Database fetch error");
+                if (recentErr) throw recentErr;
 
                 setStats({
                     total: totalCount || 0,
                     active24h: verifCount || 0,
                     revoked: revokedCount || 0
                 });
-                setRecentLogs(recentVerifs || []);
+
+                const formattedLogs = (recentCerts || []).map(cert => ({
+                    id: cert.id || cert.registration_number,
+                    status: cert.status === 'finalized' ? 'ISSUED' : cert.status?.toUpperCase() || 'DRAFT',
+                    details: `Certificate ${cert.status === 'finalized' ? 'issued' : cert.status === 'revoked' ? 'revoked' : 'drafted'} for ${cert.registration_number}`,
+                    timestamp: cert.issued_at
+                }));
+                
+                setRecentLogs(formattedLogs);
+
             } catch (error) {
-                console.error("Dashboard Fetch Error:", error.message);
+                console.error("DASHBOARD FETCH ERROR:", error);
             }
         };
 
@@ -159,6 +168,17 @@ const AdminDashboard = () => {
         } catch (error) {
             console.error("Resolve Error:", error);
             alert("Failed to resolve request.");
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await supabase.auth.signOut();
+            localStorage.removeItem('adminToken');
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            navigate('/');
         }
     };
 
@@ -232,46 +252,20 @@ const AdminDashboard = () => {
                             <div className="relative">
                                 <Bell 
                                     className="w-5 h-5 text-zinc-400 hover:text-white cursor-pointer transition-colors" 
-                                    onClick={() => setShowDropdown(!showDropdown)}
+                                    onClick={() => navigate('/notifications')}
                                 />
                                 {notifications.length > 0 && (
                                     <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#0a0a09] animate-pulse"></span>
                                 )}
-
-                                {showDropdown && (
-                                    <div className="absolute right-0 mt-4 w-80 bg-[#0f0f0e] border border-zinc-800 shadow-2xl z-50 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                                        <div className="flex items-center justify-between mb-4 pb-2 border-b border-zinc-800/50">
-                                            <span className="text-[10px] text-zinc-500 font-black tracking-widest uppercase">Pending Corrections</span>
-                                            <span className="bg-red-500/10 text-red-500 text-[8px] px-1.5 py-0.5 font-bold">{notifications.length} NEW</span>
-                                        </div>
-
-                                        <div className="max-h-64 overflow-y-auto space-y-3 custom-scrollbar">
-                                            {notifications.length > 0 ? (
-                                                notifications.map((notif) => (
-                                                    <div key={notif.id} className="p-3 bg-black/40 border border-zinc-800/30 hover:border-orange-500/30 transition-colors">
-                                                        <div className="text-[9px] text-zinc-400 font-bold uppercase truncate mb-1">
-                                                            Student: {notif.student_email}
-                                                        </div>
-                                                        <div className="text-[8px] text-zinc-600 mb-2 font-mono">
-                                                            REQ_ID: {notif.id.slice(0, 8)}...
-                                                        </div>
-                                                        <button 
-                                                            onClick={() => navigate('/issue', { state: { correctionData: notif } })}
-                                                            className="w-full bg-[#facc15] hover:bg-yellow-400 text-black font-black text-[9px] tracking-[0.2em] uppercase py-2 transition-all"
-                                                        >
-                                                            [ REVIEW & REISSUE ]
-                                                        </button>
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <div className="py-4 text-center text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
-                                                    No new notifications.
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
                             </div>
+
+                            <button 
+                                onClick={handleLogout}
+                                className="flex items-center gap-2 border border-[#333] hover:border-red-900/50 bg-[#0f0f0e] hover:bg-red-900/10 text-zinc-400 hover:text-red-500 transition-colors px-4 py-2 font-bold text-[10px] tracking-[0.2em] uppercase"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                <span className="hidden md:inline">TERMINATE_SESSION</span>
+                            </button>
                         </div>
                     </div>
 
@@ -468,9 +462,9 @@ const AdminDashboard = () => {
                         <div className="bg-[#0e0e0c] border border-[#1a1a18] rounded-sm flex flex-col w-full text-xs">
                             {/* Table Header */}
                             <div className="grid grid-cols-[120px_1fr_150px] px-6 text-xs text-zinc-500 font-mono tracking-wider pb-4 border-b border-zinc-800/50">
-                                <div className="text-left">STATUS_CODE</div>
+                                <div className="text-left pl-6">STATUS_CODE</div>
                                 <div className="text-left pl-4">EVENT_DETAILS</div>
-                                <div className="text-right">T_STAMP</div>
+                                <div className="text-right pr-6">T_STAMP</div>
                             </div>
 
                             {/* Table Body */}
@@ -481,9 +475,16 @@ const AdminDashboard = () => {
                                     ) : (
                                         recentLogs.map((log) => (
                                             <tr key={log.id} className="border-b border-zinc-900/50">
-                                                <td className="py-4 text-[#facc15] text-xs font-mono">{log.status || 'VERIFIED'}</td>
-                                                <td className="py-4 text-zinc-400 text-xs font-mono">Record verified for {log.certificate_id}</td>
-                                                <td className="py-4 text-zinc-500 text-xs font-mono text-right">{new Date(log.verified_at || log.created_at || new Date()).toLocaleString()}</td>
+                                                <td className={`py-4 pl-6 text-xs font-mono font-bold tracking-widest ${
+                                                    log.status === 'ISSUED' ? 'text-[#00ff66]' : 
+                                                    log.status === 'REVOKED' ? 'text-red-500' : 
+                                                    log.status === 'DRAFT' ? 'text-blue-500' : 
+                                                    'text-zinc-500'
+                                                }`}>
+                                                    {log.status}
+                                                </td>
+                                                <td className="py-4 text-zinc-400 text-xs font-mono pl-4">{log.details}</td>
+                                                <td className="py-4 text-zinc-500 text-xs font-mono text-right pr-6">{log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A'}</td>
                                             </tr>
                                         ))
                                     )}

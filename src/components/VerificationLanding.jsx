@@ -23,8 +23,8 @@ const VerificationLanding = () => {
 
     const [isScanning, setIsScanning] = useState(false);
     const [manualId, setManualId] = useState('');
-    const [verifiedData, setVerifiedData] = useState(null);
-    const [error, setError] = useState(false);
+    const [verificationResult, setVerificationResult] = useState(null);
+    const [certData, setCertData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
 
@@ -35,6 +35,17 @@ const VerificationLanding = () => {
             handleVerification(urlId);
         }
     }, [urlId]);
+
+    useEffect(() => {
+        const handlePopState = () => {
+            if (verificationResult) {
+                setVerificationResult(null);
+                setCertData(null);
+            }
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [verificationResult]);
 
     const handleToggleScanner = () => {
         setIsScanning(!isScanning);
@@ -81,35 +92,52 @@ const VerificationLanding = () => {
     const handleVerification = async (id) => {
         if (!id) return;
         setIsLoading(true);
-        setError(false);
-        setVerifiedData(null);
+        setVerificationResult(null);
+        setCertData(null);
         console.log("Searching for ID:", id);
 
-        let certFound = false;
-
         try {
-            const response = await fetch(`http://localhost:5000/api/certificates/verify/${id}`);
-            const result = await response.json();
+            const { data, error } = await supabase
+                .from('certificates')
+                .select('*')
+                .eq('registration_number', id)
+                .single(); // Ensure we only get one record
 
-            if (!response.ok) {
-                setError(true);
-            } else if (result.data) {
-                setVerifiedData(result.data);
-                certFound = true;
+            if (error || !data) {
+                // No record found or database error
+                setVerificationResult('INVALID');
             } else {
-                setError(true);
+                const currentStatus = data.status ? data.status.toLowerCase() : '';
+
+                if (currentStatus === 'revoked') {
+                    window.history.pushState({ view: 'result' }, '');
+                    console.log("Certificate is REVOKED. Redirecting to Revoked screen.");
+                    setCertData(data); // CAPTURE THE DATA
+                    setVerificationResult('REVOKED');
+                } else if (currentStatus === 'finalized' || currentStatus === 'active') {
+                    window.history.pushState({ view: 'result' }, '');
+                    setCertData(data);
+                    setVerificationResult('SUCCESS');
+                } else {
+                    setVerificationResult('INVALID');
+                }
             }
-        } catch (err) {
-            console.error("Verification error:", err);
-            setError(true);
-        } finally {
+
             try {
                 // AWAIT THE INSERT AND CAPTURE THE ERROR OBJECT DIRECTLY
-                const { data: logData, error: logError } = await supabase.from('verification_logs').insert([
-                {
-                    certificate_id: id
-                }
+                let payload = { certificate_id: id };
+                
+                // Attemping strict schema logs containing custom log event context 
+                let { error: logError } = await supabase.from('verification_logs').insert([
+                    { certificate_id: id, status: data?.status === 'revoked' ? 'REVOKED_ATTEMPT' : (data ? 'SUCCESS' : 'FAILED') }
                 ]);
+
+                if (logError) {
+                    // Fallback to purely saving the certificate_id if the DB schema hasn't upgraded the status column
+                    console.warn("Status column may be missing, retrying bare payload.");
+                    const retry = await supabase.from('verification_logs').insert([payload]);
+                    logError = retry.error;
+                }
 
                 if (logError) {
                     console.error("SUPABASE LOG REJECTION:", logError);
@@ -119,6 +147,10 @@ const VerificationLanding = () => {
             } catch (logError) {
                 console.error("Failed to log verification:", logError);
             }
+        } catch (err) {
+            console.error("Verification error:", err);
+            setVerificationResult('INVALID');
+        } finally {
             setIsLoading(false);
         }
     };
@@ -132,98 +164,32 @@ const VerificationLanding = () => {
         );
     }
 
-    if (error) {
-        return (
-            <CertificateInvalid
-                onRetry={() => {
-                    setError(false);
-                    setManualId('');
-                }}
-            />
-        );
+    if (verificationResult === 'SUCCESS') {
+        return <CertificateSuccess certData={certData} data={certData} onBack={() => { window.history.back(); }} />;
     }
-
-    if (verifiedData) {
-        const dateString = verifiedData.created_at || verifiedData.issued_at || verifiedData.issueDate || new Date().toISOString();
-        const formattedDate = new Date(dateString).toLocaleDateString('en-GB');
-        const certId = verifiedData.registration_number || verifiedData.certificateId || manualId;
+    if (verificationResult === 'REVOKED') {
+        // Check if we have certData before rendering
+        if (!certData) {
+            console.error("Critical Error: certData is null for REVOKED result.");
+            return <div className="text-red-500 font-mono text-center mt-20">[ ERROR_RETRIEVING_DATA ]</div>;
+        }
 
         return (
-            <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center p-4 font-mono">
-                <div className="w-full max-w-3xl bg-[#141414] border border-[#222] rounded-md shadow-2xl flex flex-col overflow-hidden">
-
-                    {/* Header section */}
-                    <div className="flex flex-col items-center justify-center pt-12 pb-8 border-b border-[#222]">
-                        <div className="w-16 h-16 rounded-full border-2 border-[#00ff66] flex items-center justify-center mb-6 shadow-[0_0_15px_rgba(0,255,102,0.15)] bg-[#0a0a0a]">
-                            <svg className="w-8 h-8 text-[#00ff66]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        <h1 className="text-3xl font-bold tracking-widest mb-2 text-white">CERTIFICATE VALID</h1>
-                        <p className="text-[#00ff66] text-xs font-bold tracking-[0.15em] uppercase">OFFICIALLY VERIFIED BY CERTVIFY BLOCKCHAIN</p>
-                    </div>
-
-                    {/* Details section */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-10 border-b border-[#222] bg-[#141414]">
-                        <div>
-                            <p className="text-gray-500 text-[10px] font-bold tracking-widest uppercase mb-2 flex items-center gap-2">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                Recipient Name
-                            </p>
-                            <p className="text-xl font-semibold tracking-wide text-gray-200">{verifiedData.studentName || verifiedData.student_name}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-500 text-[10px] font-bold tracking-widest uppercase mb-2 flex items-center gap-2">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                Credential
-                            </p>
-                            <p className="text-xl font-semibold tracking-wide text-gray-200">B.Tech in {verifiedData.course || '415'}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-500 text-[10px] font-bold tracking-widest uppercase mb-2 flex items-center gap-2">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                Issued By
-                            </p>
-                            <p className="text-lg font-semibold tracking-wide text-gray-200">University College of Engineering</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-500 text-[10px] font-bold tracking-widest uppercase mb-2 flex items-center gap-2">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                Issue Date &amp; CGPA
-                            </p>
-                            <p className="text-lg font-semibold tracking-wide text-gray-200">
-                                {formattedDate} | CGPA: {verifiedData.cgpa || '-'}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Action Row */}
-                    <div className="p-8 bg-[#0a0a0a] flex flex-col md:flex-row justify-between items-end md:items-center gap-6">
-                        <div className="w-full md:w-auto flex-grow max-w-md">
-                            <p className="text-gray-500 text-[10px] font-bold tracking-widest uppercase mb-2">Certificate ID</p>
-                            <div className="flex items-center bg-[#141414] border border-[#333] rounded px-4 py-3">
-                                <span className="text-gray-300 text-sm tracking-wider flex-grow font-mono">{certId}</span>
-                                <button onClick={() => navigator.clipboard.writeText(certId)} className="text-gray-500 hover:text-white transition-colors" title="Copy to clipboard">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                                </button>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => window.location.href = `/download?id=${certId}`}
-                            className="w-full md:w-auto bg-[#facc15] hover:bg-[#eab308] text-black font-bold py-3 px-8 text-xs tracking-[0.15em] transition-colors rounded shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center justify-center gap-3 whitespace-nowrap"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            DOWNLOAD PDF
-                        </button>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="py-4 bg-[#0a0a0a] flex justify-center items-center gap-2 border-t border-[#222]">
-                        <svg className="w-4 h-4 text-[#00ff66]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                        <span className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">TRUSTED VERIFICATION PROVIDED BY CERTVIFY</span>
-                    </div>
-
-                </div>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                <CertificateRevoked 
+                    certData={certData} 
+                    onBack={() => {
+                        // Handle back navigation: clear results and update history state
+                        setVerificationResult(null);
+                        setCertData(null);
+                        window.history.back(); // Pops the breadcrumb we pushed earlier
+                    }} 
+                />
             </div>
         );
+    }
+    if (verificationResult === 'INVALID') {
+        return <CertificateInvalid onBack={() => { window.history.back(); }} />;
     }
 
     return (

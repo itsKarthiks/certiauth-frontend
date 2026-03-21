@@ -1,8 +1,13 @@
 import React from 'react';
 import { Check, Copy, Share2, Download, ShieldCheck, User, FileText, Building, Calendar } from 'lucide-react';
+import CertificateRevoked from './CertificateRevoked';
 
 const CertificateSuccess = ({ data }) => {
     console.log("Success Component Data:", data);
+
+    if (data?.status?.toLowerCase() === 'revoked' || data?.data?.status?.toLowerCase() === 'revoked') {
+        return <CertificateRevoked data={data} />;
+    }
 
     // Extraction logic with fallbacks for camelCase nested structures
     const studentName = data?.studentName || data?.data?.studentName || 'Name Not Found';
