@@ -10,18 +10,18 @@ const CertificateRevoked = ({ certData, onBack }) => {
 
     return (
         <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto">
-            <div className="bg-[#0a0a0a] w-full border-t-4 border-[#facc15] rounded-b-sm shadow-2xl pb-8 relative overflow-hidden">
+            <div className="bg-[#0a0a0a] w-full border-t-4 border-purple-500 rounded-b-sm shadow-2xl pb-8 relative overflow-hidden">
 
                 {/* Subtle top gradient glow */}
-                <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-yellow-900/10 to-transparent pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none"></div>
 
                 <div className="px-10 pt-12 pb-6 flex flex-col items-center relative z-10">
 
                     {/* Icon Area */}
                     <div className="w-16 h-16 bg-black border border-[#22221e] relative flex items-center justify-center mb-8">
-                        <AlertTriangle className="w-8 h-8 text-[#facc15]" strokeWidth={2.5} />
-                        {/* Tiny yellow dot indicator */}
-                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full border border-[#121212]"></div>
+                        <AlertTriangle className="w-8 h-8 text-purple-500" strokeWidth={2.5} />
+                        {/* Tiny purple dot indicator */}
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-600 rounded-full border border-[#121212]"></div>
                     </div>
 
                     {/* Headers */}
@@ -47,11 +47,11 @@ const CertificateRevoked = ({ certData, onBack }) => {
                                 <p className="text-[9px] text-gray-600 font-mono tracking-[0.2em] font-bold uppercase mb-1">
                                     CERT_ID
                                 </p>
-                                <p className="text-sm font-mono text-[#facc15] tracking-widest font-bold">
+                                <p className="text-sm font-mono text-purple-500 tracking-widest font-bold">
                                     {certId}
                                 </p>
                             </div>
-                            <div className="bg-yellow-900/30 border border-yellow-900/50 text-[#facc15] text-[9px] font-bold tracking-widest uppercase px-2 py-1">
+                            <div className="bg-purple-900/30 border border-purple-900/50 text-purple-500 text-[9px] font-bold tracking-widest uppercase px-2 py-1">
                                 REVOKED
                             </div>
                         </div>
@@ -94,7 +94,7 @@ const CertificateRevoked = ({ certData, onBack }) => {
                     <div className="w-full">
                         <button
                             onClick={onBack}
-                            className="w-full py-3 bg-[#facc15] text-black font-bold font-mono text-xs uppercase tracking-widest hover:bg-white transition-colors"
+                            className="w-full py-3 bg-purple-600 text-black font-bold font-mono text-xs uppercase tracking-widest hover:bg-white transition-colors"
                         >
                             [ NEW_SEARCH ]
                         </button>

@@ -14,14 +14,14 @@ const FormRow = ({ id, label, placeholder, isSelected, fieldType = "text", value
     const isCgpa = id === 'cgpa';
     
     return (
-        <div className={`mb-4 transition-all duration-300 ${isSelected && isCgpa ? 'border border-yellow-500/30 bg-yellow-500/5 p-6' : ''}`}>
+        <div className={`mb-4 transition-all duration-300 ${isSelected && isCgpa ? 'border border-purple-500/30 bg-purple-600/5 p-6' : ''}`}>
             <div 
                 className="flex items-center gap-4 cursor-pointer group select-none"
                 onClick={() => onToggle(id)}
             >
                 <div className="flex-shrink-0">
                     {isSelected ? (
-                        <CheckSquare className="w-5 h-5 text-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.2)]" />
+                        <CheckSquare className="w-5 h-5 text-purple-500 shadow-[0_0_10px_rgba(147,51,234,0.2)]" />
                     ) : (
                         <Square className="w-5 h-5 text-zinc-700 group-hover:text-zinc-500 transition-colors" />
                     )}
@@ -38,10 +38,10 @@ const FormRow = ({ id, label, placeholder, isSelected, fieldType = "text", value
                         value={value}
                         onChange={(e) => onChange(id, e.target.value)}
                         placeholder={placeholder}
-                        className={`w-full bg-black border border-zinc-800 text-white p-4 text-xs font-mono outline-none focus:border-yellow-500/50 transition-colors placeholder:text-zinc-800 tracking-wider`}
+                        className={`w-full bg-black border border-zinc-800 text-white p-4 text-xs font-mono outline-none focus:border-purple-500/50 transition-colors placeholder:text-zinc-800 tracking-wider`}
                     />
                     {isCgpa && (
-                        <div className="mt-2 text-[9px] text-yellow-600 font-bold uppercase tracking-tighter">
+                        <div className="mt-2 text-[9px] text-purple-500 font-bold uppercase tracking-tighter">
                             [ SYSTEM_NOTICE: ENTER_EXACT_CGPA_POST_REV_MATCH ]
                         </div>
                     )}
@@ -136,7 +136,7 @@ const CorrectionForm = ({ certData: propCertData }) => {
             {/* --- HEADER --- */}
             <header className="w-full border-b border-zinc-800/50 bg-[#0a0a09] px-8 py-4 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate('/student-portal')}>
-                    <div className="w-10 h-10 bg-[#facc15] flex items-center justify-center font-black text-black text-xl shadow-[0_0_15px_rgba(250,204,21,0.2)]">
+                    <div className="w-10 h-10 bg-purple-600 flex items-center justify-center font-black text-black text-xl shadow-[0_0_15px_rgba(147,51,234,0.2)]">
                         C_
                     </div>
                     <div>
@@ -154,7 +154,7 @@ const CorrectionForm = ({ certData: propCertData }) => {
                             {certData?.course || certData?.program || 'UNKNOWN_PROGRAM'}
                         </span>
                     </div>
-                    <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 flex items-center justify-center border-yellow-500/20">
+                    <div className="w-10 h-10 bg-zinc-900 border border-zinc-800 flex items-center justify-center border-purple-500/20">
                         <User className="w-5 h-5 text-zinc-500" />
                     </div>
                 </div>
@@ -162,18 +162,18 @@ const CorrectionForm = ({ certData: propCertData }) => {
 
             {/* Background Decoration */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-yellow-500 blur-[120px]"></div>
-                <div className="absolute bottom-0 left-0 w-96 h-96 bg-yellow-500 blur-[120px]"></div>
+                <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600 blur-[120px]"></div>
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600 blur-[120px]"></div>
             </div>
 
             <div className="w-full max-w-2xl relative z-10 p-6 sm:p-12">
                 <div className="mb-10">
                     <h2 className="text-3xl font-black text-white tracking-widest uppercase mb-4 flex items-center gap-4">
-                        <ShieldAlert className="w-8 h-8 text-yellow-500" />
+                        <ShieldAlert className="w-8 h-8 text-purple-500" />
                         Report Document Error
                     </h2>
                     <p className="text-zinc-500 text-xs tracking-widest leading-relaxed uppercase font-bold">
-                        Submitting this form will alert the <span className="text-yellow-500 border-b border-yellow-500/30 pb-0.5">Certvify Registrar Module.</span> Your current certificate draft will be suspended pending manual verification and re-sync.
+                        Submitting this form will alert the <span className="text-purple-500 border-b border-purple-500/30 pb-0.5">Certvify Registrar Module.</span> Your current certificate draft will be suspended pending manual verification and re-sync.
                     </p>
                 </div>
 
@@ -182,7 +182,7 @@ const CorrectionForm = ({ certData: propCertData }) => {
                         {!isSubmitted ? (
                             <>
                                 <div className="flex items-center gap-3 mb-10 pb-4 border-b border-zinc-800/30">
-                                    <Terminal className="w-4 h-4 text-yellow-500" />
+                                    <Terminal className="w-4 h-4 text-purple-500" />
                                     <span className="text-[10px] text-zinc-600 font-black tracking-[0.4em] uppercase">ERROR_FLAG_PARAMETERS</span>
                                 </div>
 
@@ -229,7 +229,7 @@ const CorrectionForm = ({ certData: propCertData }) => {
                                         <button 
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="w-1/2 bg-[#facc15] hover:bg-yellow-400 disabled:bg-yellow-900/50 text-black font-black text-[10px] tracking-[0.4em] uppercase py-5 transition-all shadow-[0_0_20px_rgba(250,204,21,0.1)] active:scale-[0.98] outline-none"
+                                            className="w-1/2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900/50 text-black font-black text-[10px] tracking-[0.4em] uppercase py-5 transition-all shadow-[0_0_20px_rgba(147,51,234,0.1)] active:scale-[0.98] outline-none"
                                         >
                                             {isSubmitting ? 'SUBMITTING...' : 'SUBMIT_TO_ADMIN'}
                                         </button>

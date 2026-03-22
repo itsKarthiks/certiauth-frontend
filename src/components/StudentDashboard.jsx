@@ -97,7 +97,7 @@ const StudentDashboard = () => {
         return (
             <div className="min-h-screen bg-[#0a0a09] flex items-center justify-center font-mono">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-yellow-500 animate-spin" />
+                    <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
                     <span className="text-zinc-600 text-[10px] font-black tracking-widest uppercase">INITIALIZINGL...</span>
                 </div>
             </div>
@@ -118,7 +118,7 @@ const StudentDashboard = () => {
                 {/* --- FULL WIDTH HEADER --- */}
                 <header className="w-full border-b border-[#222] bg-[#0a0a0a] px-8 py-4 flex items-center justify-between sticky top-0 z-50">
                     <div className="flex items-center gap-4 group cursor-default">
-                        <div className="w-10 h-10 bg-[#facc15] flex items-center justify-center font-black text-black text-xl shadow-[0_0_15px_rgba(250,204,21,0.2)]">
+                        <div className="w-10 h-10 bg-purple-600 flex items-center justify-center font-black text-black text-xl shadow-[0_0_15px_rgba(147,51,234,0.2)]">
                             C_
                         </div>
                         <div>
@@ -177,7 +177,7 @@ const StudentDashboard = () => {
                                         iframe.contentWindow.print();
                                     }
                                 }}
-                                className="w-full bg-[#facc15] hover:bg-[#eab308] text-black font-black py-5 text-sm tracking-[0.2em] transition-all transform active:scale-[0.99] rounded-sm flex items-center justify-center gap-4"
+                                className="w-full bg-purple-600 hover:bg-purple-500 text-black font-black py-5 text-sm tracking-[0.2em] transition-all transform active:scale-[0.99] rounded-sm flex items-center justify-center gap-4"
                             >
                                 [ DOWNLOAD OFFICIAL CERTIFICATE (PDF) ]
                             </button>
@@ -206,7 +206,7 @@ const StudentDashboard = () => {
             {/* --- HEADER --- */}
             <header className="border-b border-zinc-800/50 bg-[#0a0a09] px-8 py-4 flex items-center justify-between sticky top-0 z-50">
                 <div className="flex items-center gap-4 group cursor-default">
-                    <div className="w-10 h-10 bg-[#facc15] flex items-center justify-center font-black text-black text-xl shadow-[0_0_15px_rgba(250,204,21,0.2)]">
+                    <div className="w-10 h-10 bg-purple-600 flex items-center justify-center font-black text-black text-xl shadow-[0_0_15px_rgba(147,51,234,0.2)]">
                         C_
                     </div>
                     <div>
@@ -261,7 +261,7 @@ const StudentDashboard = () => {
                                     </div>
                                 </div>
 
-                                {/* Replaces the yellow button to maintain layout height/structure */}
+                                {/* Replaces the purple button to maintain layout height/structure */}
                                 <div className="h-[60px] border border-red-900/30 bg-[#050000] flex items-center justify-center">
                                     <span className="text-red-900 font-mono text-[10px] tracking-widest uppercase">
                                         [ NO_ACTIONS_AVAILABLE ]
@@ -272,23 +272,23 @@ const StudentDashboard = () => {
                             <>
                                 <div className="bg-[#0f0f0e] border border-zinc-800/50 flex flex-col h-full relative overflow-hidden">
                                     {/* Decorative corner */}
-                                    <div className={`absolute top-0 right-0 w-16 h-16 ${certificates[0]?.status === 'finalized' ? 'bg-green-500/5' : hasCert ? 'bg-yellow-500/5' : 'bg-zinc-800/10'} [clip-path:polygon(100%_0,0_0,100%_100%)]`}></div>
+                                    <div className={`absolute top-0 right-0 w-16 h-16 ${certificates[0]?.status === 'finalized' ? 'bg-green-500/5' : hasCert ? 'bg-purple-600/5' : 'bg-zinc-800/10'} [clip-path:polygon(100%_0,0_0,100%_100%)]`}></div>
 
                                     <div className="px-8 py-6 border-b border-zinc-800/50 flex items-center justify-between bg-black/20">
                                         <div className="flex items-center gap-3">
-                                            <Terminal className={`w-4 h-4 ${certificates[0]?.status === 'finalized' ? 'text-green-500' : hasCert ? 'text-yellow-500' : 'text-zinc-600'}`} />
+                                            <Terminal className={`w-4 h-4 ${certificates[0]?.status === 'finalized' ? 'text-green-500' : hasCert ? 'text-purple-500' : 'text-zinc-600'}`} />
                                             <h2 className="text-white font-black tracking-[0.2em] uppercase text-xs">CERT_STATUS_MONITOR</h2>
                                         </div>
                                         <div className={`px-3 py-1 border ${certificates[0]?.status === 'finalized'
                                                 ? 'border-green-500/30 bg-green-500/5'
                                                 : hasCert
-                                                    ? 'border-yellow-500/30 bg-yellow-500/5'
+                                                    ? 'border-purple-500/30 bg-purple-600/5'
                                                     : 'border-zinc-800 bg-zinc-900/30'
                                             }`}>
                                             <span className={`text-[9px] font-black tracking-[0.2em] ${certificates[0]?.status === 'finalized'
                                                     ? 'text-green-500'
                                                     : hasCert
-                                                        ? 'text-yellow-500'
+                                                        ? 'text-purple-500'
                                                         : 'text-zinc-500'
                                                 }`}>
                                                 {certificates[0]?.status === 'finalized' ? 'DOCUMENT_READY' : hasCert ? 'ACTION_REQUIRED' : 'SYSTEM_STANDBY'}
@@ -303,14 +303,14 @@ const StudentDashboard = () => {
                                                 <div className="absolute left-4 top-8 bottom-0 w-px bg-zinc-800"></div>
                                                 <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${hasCert
                                                         ? 'bg-zinc-900 border border-green-500/50'
-                                                        : 'bg-black border-2 border-yellow-500/60'
+                                                        : 'bg-black border-2 border-purple-500/60'
                                                     }`}>
                                                     {hasCert
                                                         ? <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
-                                                        : <Clock className="w-4 h-4 text-[#facc15] animate-pulse" strokeWidth={2} />}
+                                                        : <Clock className="w-4 h-4 text-purple-500 animate-pulse" strokeWidth={2} />}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <h3 className={`text-xs uppercase tracking-wider font-bold ${hasCert ? 'text-zinc-200' : 'text-yellow-500/80'
+                                                    <h3 className={`text-xs uppercase tracking-wider font-bold ${hasCert ? 'text-zinc-200' : 'text-purple-500/80'
                                                         }`}>
                                                         {hasCert ? '01 // DATA_SYNC_COMPLETE' : '01 // AWAITING_ADMIN_SYNC'}
                                                     </h3>
@@ -347,26 +347,26 @@ const StudentDashboard = () => {
                                                         ? 'bg-zinc-900 border border-zinc-700'
                                                         : certificates[0]?.status === 'finalized'
                                                             ? 'bg-zinc-900 border border-green-500/50'
-                                                            : 'bg-black border-2 border-yellow-500 shadow-[0_0_15px_rgba(250,204,21,0.2)]'
+                                                            : 'bg-black border-2 border-purple-500 shadow-[0_0_15px_rgba(147,51,234,0.2)]'
                                                     }`}>
                                                     {!hasCert
                                                         ? <Clock className="w-4 h-4 text-zinc-700" strokeWidth={2} />
                                                         : certificates[0]?.status === 'finalized'
                                                             ? <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
-                                                            : <Clock className="w-4 h-4 text-yellow-500" strokeWidth={3} />}
+                                                            : <Clock className="w-4 h-4 text-purple-500" strokeWidth={3} />}
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <h3 className={`text-xs uppercase tracking-widest ${!hasCert
                                                             ? 'text-zinc-600 font-bold'
                                                             : certificates[0]?.status === 'finalized'
                                                                 ? 'text-zinc-200 font-bold'
-                                                                : 'text-yellow-500 font-black'
+                                                                : 'text-purple-500 font-black'
                                                         }`}>03 // PENDING_VERIFICATION</h3>
                                                     <p className={`text-[11px] mt-2 leading-relaxed font-medium ${!hasCert
                                                             ? 'text-zinc-600'
                                                             : certificates[0]?.status === 'finalized'
                                                                 ? 'text-zinc-500'
-                                                                : 'text-zinc-300 font-bold bg-yellow-500/5 p-3 border-l-2 border-yellow-500'
+                                                                : 'text-zinc-300 font-bold bg-purple-600/5 p-3 border-l-2 border-purple-500'
                                                         }`}>
                                                         {!hasCert
                                                             ? 'Awaiting certificate draft from Registrar.'
@@ -405,7 +405,7 @@ const StudentDashboard = () => {
                                             }
                                         }}
                                         disabled={certificates.length === 0}
-                                        className={`w-full ${certificates[0]?.status === 'finalized' ? 'bg-green-600 hover:bg-green-500' : 'bg-[#facc15] hover:bg-yellow-400'} text-black font-black text-xs tracking-[0.3em] uppercase py-6 flex items-center justify-center gap-3 transition-all active:scale-[0.99] ${certificates.length === 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                                        className={`w-full ${certificates[0]?.status === 'finalized' ? 'bg-green-600 hover:bg-green-500' : 'bg-purple-600 hover:bg-purple-500'} text-black font-black text-xs tracking-[0.3em] uppercase py-6 flex items-center justify-center gap-3 transition-all active:scale-[0.99] ${certificates.length === 0 ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                                     >
                                         [ {certificates.length === 0 ? 'NO_CERTIFICATES_FOUND' : (certificates[0]?.status === 'finalized' ? 'DOWNLOAD_OFFICIAL_PDF' : 'VERIFY_&_CONFIRM_DETAILS')} ]
                                         <ArrowRight className="w-4 h-4" strokeWidth={3} />
@@ -419,7 +419,7 @@ const StudentDashboard = () => {
                     <div className="flex flex-col">
                         <div className="flex flex-col border border-zinc-800 bg-[#0d0d0d] p-8 h-full min-h-[500px]">
                             <div className="text-xs tracking-widest text-white mb-10 font-black uppercase flex items-center">
-                                <span className="w-2 h-2 bg-[#facc15] mr-3"></span> STUDENT_DOSSIER
+                                <span className="w-2 h-2 bg-purple-600 mr-3"></span> STUDENT_DOSSIER
                             </div>
 
                             <div className="flex-grow space-y-6">
@@ -471,7 +471,7 @@ const StudentDashboard = () => {
                                 )}
                                 
                                 {requestStatus === 'PENDING' && (
-                                    <span className="text-yellow-500 font-mono text-[10px] font-bold tracking-widest uppercase border border-yellow-500/20 px-3 py-1 bg-yellow-500/10">
+                                    <span className="text-purple-500 font-mono text-[10px] font-bold tracking-widest uppercase border border-purple-500/20 px-3 py-1 bg-purple-600/10">
                                         [ PENDING_ADMIN_REVIEW ]
                                     </span>
                                 )}
