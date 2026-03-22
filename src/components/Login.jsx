@@ -88,11 +88,11 @@ const Login = () => {
 
             {/* Terminal Card Container */}
             <div className="relative w-full max-w-[480px] bg-[#0d0d0d] border border-zinc-800 shadow-2xl overflow-hidden">
-                {/* Purple Corner Accents (Targeting Brackets) */}
-                <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500"></div>
-                <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-purple-500"></div>
-                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-purple-500"></div>
-                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-purple-500"></div>
+                {/* Yellow Corner Accents (Targeting Brackets) */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-yellow-500"></div>
+                <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-yellow-500"></div>
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-yellow-500"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-yellow-500"></div>
 
                 {/* Window Header */}
                 <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-900 bg-black/40">
@@ -106,11 +106,11 @@ const Login = () => {
                 <div className="p-10 pt-12">
                     {/* Branding / Header Section */}
                     <div className="flex flex-col items-center mb-10">
-                        <div className="w-14 h-14 bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(147,51,234,0.05)]">
-                            <Shield className="w-6 h-6 text-purple-500" />
+                        <div className="w-14 h-14 bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(234,179,8,0.05)]">
+                            <Shield className="w-6 h-6 text-yellow-500" />
                         </div>
                         <h2 className="text-xl font-black text-white tracking-widest uppercase mb-2 text-center">
-                            [ <span className="text-purple-500">STUDENT</span> {isLogin ? 'LOGIN' : 'PORTAL'} ]
+                            [ <span className="text-yellow-400">STUDENT</span> {isLogin ? 'LOGIN' : 'PORTAL'} ]
                         </h2>
                     </div>
 
@@ -126,12 +126,12 @@ const Login = () => {
                             <div className="space-y-2">
                                 <label className="text-[9px] text-zinc-500 font-black tracking-widest uppercase ml-1">University Reg_No</label>
                                 <div className="relative group">
-                                    <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-purple-500 transition-colors" />
+                                    <FileText className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-yellow-600 transition-colors" />
                                     <input
                                         type="text"
                                         value={regNumber}
                                         onChange={(e) => setRegNumber(e.target.value)}
-                                        className="w-full bg-black border border-zinc-800 text-white pl-12 pr-4 py-4 text-xs font-mono focus:border-purple-500/50 outline-none transition-all placeholder:text-zinc-800"
+                                        className="w-full bg-black border border-zinc-800 text-white pl-12 pr-4 py-4 text-xs font-mono focus:border-yellow-500/50 outline-none transition-all placeholder:text-zinc-800"
                                         placeholder="e.g., 41X23404XXXX"
                                         required
                                     />
@@ -144,12 +144,12 @@ const Login = () => {
                             <div className="space-y-2">
                                 <label className="text-[9px] text-zinc-500 font-black tracking-widest uppercase ml-1">Full Legal Name</label>
                                 <div className="relative group">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-purple-500 transition-colors" />
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-yellow-600 transition-colors" />
                                     <input
                                         type="text"
                                         value={fullName}
                                         onChange={(e) => setFullName(e.target.value)}
-                                        className="w-full bg-black border border-zinc-800 text-white pl-12 pr-4 py-4 text-xs font-mono focus:border-purple-500/50 outline-none transition-all placeholder:text-zinc-800"
+                                        className="w-full bg-black border border-zinc-800 text-white pl-12 pr-4 py-4 text-xs font-mono focus:border-yellow-500/50 outline-none transition-all placeholder:text-zinc-800"
                                         placeholder="e.g., JOHN ALEX DOE"
                                         required
                                     />
@@ -161,12 +161,12 @@ const Login = () => {
                         <div className="space-y-2">
                             <label className="text-[9px] text-zinc-500 font-black tracking-widest uppercase ml-1">Student Mail</label>
                             <div className="relative group">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-purple-500 transition-colors" />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-yellow-600 transition-colors" />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-black border border-zinc-800 text-white pl-12 pr-4 py-4 text-xs font-mono focus:border-purple-500/50 outline-none transition-all placeholder:text-zinc-800"
+                                    className="w-full bg-black border border-zinc-800 text-white pl-12 pr-4 py-4 text-xs font-mono focus:border-yellow-500/50 outline-none transition-all placeholder:text-zinc-800"
                                     placeholder="ENTER_STUDENT_EMAIL"
                                     required
                                 />
@@ -177,19 +177,19 @@ const Login = () => {
                         <div className="space-y-2">
                             <label className="text-[9px] text-zinc-500 font-black tracking-widest uppercase ml-1">PASSWORD</label>
                             <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-purple-500 transition-colors" />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700 group-focus-within:text-yellow-600 transition-colors" />
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-black border border-zinc-800 text-white pl-12 pr-12 py-4 text-xs font-mono focus:border-purple-500/50 outline-none transition-all placeholder:text-zinc-800 tracking-[0.3em]"
+                                    className="w-full bg-black border border-zinc-800 text-white pl-12 pr-12 py-4 text-xs font-mono focus:border-yellow-500/50 outline-none transition-all placeholder:text-zinc-800 tracking-[0.3em]"
                                     placeholder="••••••••••••"
                                     required
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-purple-500 transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-[#facc15] transition-colors"
                                 >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
@@ -200,7 +200,7 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className={`w-full bg-purple-600 hover:bg-purple-500 text-black font-black tracking-widest py-5 px-6 flex items-center justify-center gap-3 transition-all active:scale-[0.98] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black tracking-widest py-5 px-6 flex items-center justify-center gap-3 transition-all active:scale-[0.98] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             {isLoading ? 'EXECUTING_HANDSHAKE...' : (isLogin ? 'INITIATE_SESSION' : 'Register')}
                             <ArrowRight className="w-4 h-4" strokeWidth={3} />

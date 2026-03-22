@@ -129,15 +129,15 @@ const AdminResolve = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white p-8 font-mono uppercase">
       {/* Top Header */}
       <header className="flex justify-between items-center bg-[#0a0a0a]">
-        <div className="text-purple-500 font-bold text-xl tracking-wider">
+        <div className="text-[#facc15] font-bold text-xl tracking-wider">
           C_ CERTVIFY
         </div>
 
         <nav className="flex gap-8 text-sm">
-          <button className="text-purple-500 border-b-2 border-purple-500 pb-1">COMPARE</button>
+          <button className="text-[#facc15] border-b-2 border-[#facc15] pb-1">COMPARE</button>
         </nav>
 
-        <button className="text-purple-500 hover:text-white transition-colors" onClick={() => navigate('/dashboard')}>
+        <button className="text-[#facc15] hover:text-white transition-colors" onClick={() => navigate('/dashboard')}>
           <Home size={20} />
         </button>
       </header>
@@ -156,7 +156,7 @@ const AdminResolve = () => {
         {/* Left Card */}
         <div className="bg-[#050000] border border-zinc-800 relative p-8 w-1/2 flex flex-col min-h-[400px]">
           <div className="mb-8">
-            <h2 className="text-purple-500 font-bold tracking-widest text-lg">PREVIOUS_DETAILS</h2>
+            <h2 className="text-[#facc15] font-bold tracking-widest text-lg">PREVIOUS_DETAILS</h2>
             <div className="text-zinc-600 text-[10px] tracking-widest mt-1">SOURCE: ORIGINAL_DATABASE_ENTRY</div>
           </div>
 
@@ -189,70 +189,70 @@ const AdminResolve = () => {
 
         {/* Middle Separator */}
         <div className="flex items-center justify-center">
-          <div className="bg-purple-600 text-black w-10 h-10 flex items-center justify-center font-bold">
+          <div className="bg-[#facc15] text-black w-10 h-10 flex items-center justify-center font-bold">
             <ArrowRight size={20} strokeWidth={3} />
           </div>
         </div>
 
         {/* Right Card */}
-        <div className="bg-[#050000] border border-zinc-800 border-r-4 border-r-[#9333ea] relative p-8 w-1/2 flex flex-col min-h-[400px]">
+        <div className="bg-[#050000] border border-zinc-800 border-r-4 border-r-[#facc15] relative p-8 w-1/2 flex flex-col min-h-[400px]">
           <div className="mb-8">
-            <h2 className="text-purple-500 font-bold tracking-widest text-lg">CORRECTED_DETAILS</h2>
+            <h2 className="text-[#facc15] font-bold tracking-widest text-lg">CORRECTED_DETAILS</h2>
             <div className="text-zinc-600 text-[10px] tracking-widest mt-1">SOURCE: VERIFIED_AMENDMENT_REQUEST</div>
           </div>
 
           <div className="space-y-6 z-10 flex-grow">
             {/* NAME */}
             <div className="mb-4">
-              <p className={`text-[10px] tracking-wider uppercase ${nameChanged ? 'text-purple-500 font-bold' : 'text-zinc-500'}`}>
+              <p className={`text-[10px] tracking-wider uppercase ${nameChanged ? 'text-[#facc15] font-bold' : 'text-zinc-500'}`}>
                 NAME {nameChanged && '[MODIFIED]'}
               </p>
               <div className={`flex items-center gap-3 mt-1`}>
-                <span className={nameChanged ? 'bg-[#1a1500] border border-purple-500/30 text-purple-500 px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
+                <span className={nameChanged ? 'bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
                   {nameVal}
                 </span>
-                {nameChanged && <span className="text-purple-500 font-bold text-xl">!</span>}
+                {nameChanged && <span className="text-[#facc15] font-bold text-xl">!</span>}
               </div>
             </div>
 
             {/* COURSE */}
             <div className="mb-4">
-              <p className={`text-[10px] tracking-wider uppercase ${courseChanged ? 'text-purple-500 font-bold' : 'text-zinc-500'}`}>
+              <p className={`text-[10px] tracking-wider uppercase ${courseChanged ? 'text-[#facc15] font-bold' : 'text-zinc-500'}`}>
                 COURSE {courseChanged && '[MODIFIED]'}
               </p>
               <div className={`flex items-center gap-3 mt-1`}>
-                <span className={courseChanged ? 'bg-[#1a1500] border border-purple-500/30 text-purple-500 px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
+                <span className={courseChanged ? 'bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
                   {courseVal}
                 </span>
-                {courseChanged && <span className="text-purple-500 font-bold text-xl">!</span>}
+                {courseChanged && <span className="text-[#facc15] font-bold text-xl">!</span>}
               </div>
             </div>
 
             {/* CGPA */}
             <div className="mb-4">
-              <p className={`text-[10px] tracking-wider uppercase ${cgpaChanged ? 'text-purple-500 font-bold' : 'text-zinc-500'}`}>
+              <p className={`text-[10px] tracking-wider uppercase ${cgpaChanged ? 'text-[#facc15] font-bold' : 'text-zinc-500'}`}>
                 CGPA {cgpaChanged && '[MODIFIED]'}
               </p>
               <div className={`flex items-center gap-3 mt-1`}>
-                <span className={cgpaChanged ? 'bg-[#1a1500] border border-purple-500/30 text-purple-500 px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
+                <span className={cgpaChanged ? 'bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
                   {cgpaVal}
                 </span>
-                {cgpaChanged && <span className="text-purple-500 font-bold text-xl">!</span>}
+                {cgpaChanged && <span className="text-[#facc15] font-bold text-xl">!</span>}
               </div>
             </div>
 
             {/* REG_NO */}
             <div className="mb-4 relative z-10">
-              <p className={`text-[10px] uppercase ${regChanged ? 'text-purple-500 font-bold' : 'text-zinc-600'}`}>
+              <p className={`text-[10px] uppercase ${regChanged ? 'text-[#facc15] font-bold' : 'text-zinc-600'}`}>
                 REG_NO {regChanged && '[MODIFIED]'}
               </p>
               <div className={`flex items-center gap-3 ${regChanged ? 'mt-1' : ''}`}>
-                <span className={regChanged ? 'bg-[#1a1500] border border-purple-500/30 text-purple-500 px-2 py-1 text-lg' : 'text-white text-lg mt-1'}>
+                <span className={regChanged ? 'bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg' : 'text-white text-lg mt-1'}>
                   {(requestData?.corrected_reg_no && String(requestData.corrected_reg_no).trim() !== '') 
                     ? requestData.corrected_reg_no 
                     : originalData?.registration_number}
                 </span>
-                {regChanged && <span className="text-purple-500 font-bold">!</span>}
+                {regChanged && <span className="text-[#facc15] font-bold">!</span>}
               </div>
             </div>
           </div>
@@ -281,7 +281,7 @@ const AdminResolve = () => {
               setShowConfirmModal(true);
               console.log("Modal Triggered"); // Debugging log
             }} 
-            className="bg-purple-600 text-black px-6 py-2 text-xs font-bold hover:bg-white transition-colors tracking-widest"
+            className="bg-[#facc15] text-black px-6 py-2 text-xs font-bold hover:bg-white transition-colors tracking-widest"
           >
             COMMIT_CHANGES
           </button>
@@ -291,11 +291,11 @@ const AdminResolve = () => {
       {/* CONFIRMATION MODAL OVERLAY */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="bg-[#050000] border border-purple-500/50 p-6 max-w-lg w-full shadow-2xl relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-purple-600"></div>
+          <div className="bg-[#050000] border border-[#facc15]/50 p-6 max-w-lg w-full shadow-2xl relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-[#facc15]"></div>
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-purple-500 text-xl">⚠️</span>
-              <h3 className="text-purple-500 font-mono text-sm font-bold tracking-widest">{'>_'} SYSTEM_OVERRIDE_WARNING</h3>
+              <span className="text-[#facc15] text-xl">⚠️</span>
+              <h3 className="text-[#facc15] font-mono text-sm font-bold tracking-widest">{'>_'} SYSTEM_OVERRIDE_WARNING</h3>
             </div>
             <p className="text-zinc-400 font-mono text-xs leading-relaxed mb-8">
               Are you sure you want to commit the changes? Committing will completely delete the old issued certificate and issue a new cryptographic certificate to the student. <span className="text-red-400">This action is irreversible.</span>
@@ -306,7 +306,7 @@ const AdminResolve = () => {
               </button>
               <button 
                 onClick={handleCommitProtocol}
-                className="px-6 py-2 bg-purple-600 text-black font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-colors"
+                className="px-6 py-2 bg-[#facc15] text-black font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-colors"
               >
                 [ CONFIRM_COMMIT ]
               </button>

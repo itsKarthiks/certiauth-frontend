@@ -91,7 +91,7 @@ const CertificatePreview = () => {
         return (
             <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center font-mono">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="w-10 h-10 text-purple-500 animate-spin" />
+                    <Loader2 className="w-10 h-10 text-yellow-500 animate-spin" />
                     <span className="text-zinc-600 text-[10px] font-black tracking-widest uppercase">
                         [ FETCHING_DRAFT... ]
                     </span>
@@ -141,7 +141,7 @@ const CertificatePreview = () => {
 
                         {/* Modal Header */}
                         <div className="p-6 border-b border-zinc-800 flex items-center gap-3 bg-[#111]">
-                            <span className="w-3 h-3 bg-purple-600 rounded-full animate-pulse shadow-[0_0_10px_#9333ea]"></span>
+                            <span className="w-3 h-3 bg-[#facc15] rounded-full animate-pulse shadow-[0_0_10px_#facc15]"></span>
                             <h3 className="text-white font-black tracking-widest uppercase text-sm">SYSTEM_WARNING: Finalize</h3>
                         </div>
 
@@ -178,7 +178,7 @@ const CertificatePreview = () => {
             <header className="border-b border-[#222] bg-[#0a0a0a] px-6 md:px-10 py-4 flex items-center justify-between sticky top-0 z-50">
                 {/* Certvify Logo */}
                 <div className="flex items-center gap-3 cursor-default">
-                    <div className="w-9 h-9 bg-purple-600 flex items-center justify-center font-black text-black text-base shadow-[0_0_15px_rgba(147,51,234,0.2)]">
+                    <div className="w-9 h-9 bg-[#facc15] flex items-center justify-center font-black text-black text-base shadow-[0_0_15px_rgba(250,204,21,0.2)]">
                         C_
                     </div>
                     <h1 className="text-white font-black leading-none tracking-[0.2em] text-base uppercase">

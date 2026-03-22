@@ -173,7 +173,7 @@ const CertificateLogs = () => {
             {/* TOP NAVIGATION BAR */}
             <div className="flex items-center justify-between border-b border-[#1a1a18] pb-6 mb-8 mt-2">
                 <div className="flex items-center text-white font-black text-xl tracking-widest">
-                    <div className="bg-purple-600 text-black w-8 h-8 flex items-center justify-center mr-3 font-extrabold text-lg">
+                    <div className="bg-yellow-500 text-black w-8 h-8 flex items-center justify-center mr-3 font-extrabold text-lg">
                         C_
                     </div>
                     <div className="flex flex-col">
@@ -204,7 +204,7 @@ const CertificateLogs = () => {
 
                     <button
                         onClick={() => navigate('/issue')}
-                        className="flex items-center bg-purple-600 hover:bg-purple-500 text-black font-bold text-[11px] tracking-widest uppercase px-6 py-4 shadow-[0_0_15px_rgba(147,51,234,0.15)] transition-all"
+                        className="flex items-center bg-[#facc15] hover:bg-yellow-400 text-black font-bold text-[11px] tracking-widest uppercase px-6 py-4 shadow-[0_0_15px_rgba(234,179,8,0.15)] transition-all"
                     >
                         <Plus className="w-4 h-4 mr-2" strokeWidth={3} />
                         ISSUE NEW CERTIFICATE
@@ -215,7 +215,7 @@ const CertificateLogs = () => {
                 <div className="bg-[#11110f] border border-[#1a1a18] p-3 flex flex-wrap items-center justify-between gap-4 mb-6">
                     {/* Search */}
                     <div className="flex items-center flex-1 max-w-2xl bg-black border border-[#22221e] px-4 py-3 group focus-within:border-gray-600 transition-colors">
-                        <Search className="w-4 h-4 text-gray-500 mr-3 group-focus-within:text-purple-500 transition-colors" />
+                        <Search className="w-4 h-4 text-gray-500 mr-3 group-focus-within:text-yellow-500 transition-colors" />
                         <input
                             type="text"
                             placeholder="Search by ID, Name, or Course..."
@@ -232,19 +232,19 @@ const CertificateLogs = () => {
                         <div className="flex border border-[#22221e] bg-black">
                             <button
                                 onClick={() => setStatusFilter('ALL')}
-                                className={`px-5 py-3 text-[10px] font-bold tracking-widest uppercase transition-colors ${statusFilter === 'ALL' ? 'bg-purple-600 text-black' : 'text-gray-400 hover:text-white hover:bg-[#1a1a18]'}`}
+                                className={`px-5 py-3 text-[10px] font-bold tracking-widest uppercase transition-colors ${statusFilter === 'ALL' ? 'bg-[#facc15] text-black' : 'text-gray-400 hover:text-white hover:bg-[#1a1a18]'}`}
                             >
                                 ALL
                             </button>
                             <button
                                 onClick={() => setStatusFilter('ACTIVE')}
-                                className={`px-5 py-3 text-[10px] font-bold tracking-widest uppercase transition-colors border-l border-[#22221e] ${statusFilter === 'ACTIVE' ? 'bg-purple-600 text-black' : 'text-gray-400 hover:text-white hover:bg-[#1a1a18]'}`}
+                                className={`px-5 py-3 text-[10px] font-bold tracking-widest uppercase transition-colors border-l border-[#22221e] ${statusFilter === 'ACTIVE' ? 'bg-[#facc15] text-black' : 'text-gray-400 hover:text-white hover:bg-[#1a1a18]'}`}
                             >
                                 ACTIVE
                             </button>
                             <button
                                 onClick={() => setStatusFilter('REVOKED')}
-                                className={`px-5 py-3 text-[10px] font-bold tracking-widest uppercase transition-colors border-l border-[#22221e] ${statusFilter === 'REVOKED' ? 'bg-purple-600 text-black' : 'text-gray-400 hover:text-white hover:bg-[#1a1a18]'}`}
+                                className={`px-5 py-3 text-[10px] font-bold tracking-widest uppercase transition-colors border-l border-[#22221e] ${statusFilter === 'REVOKED' ? 'bg-[#facc15] text-black' : 'text-gray-400 hover:text-white hover:bg-[#1a1a18]'}`}
                             >
                                 REVOKED
                             </button>
@@ -259,7 +259,7 @@ const CertificateLogs = () => {
                 {/* DATA TABLE */}
                 <div className="bg-[#11110f] border border-[#1a1a18] flex flex-col w-full flex-1 min-h-[400px]">
                     {/* Header Row */}
-                    <div className="grid grid-cols-12 gap-4 px-8 py-5 text-[10px] font-bold text-purple-500 tracking-[0.15em] uppercase border-b border-[#22221e]">
+                    <div className="grid grid-cols-12 gap-4 px-8 py-5 text-[10px] font-bold text-yellow-600 tracking-[0.15em] uppercase border-b border-[#22221e]">
                         <div className="col-span-2">STUDENT ID</div>
                         <div className="col-span-3">RECIPIENT</div>
                         <div className="col-span-3">COURSE</div>
@@ -277,7 +277,7 @@ const CertificateLogs = () => {
                                 <div key={cert.registration_number} className="grid grid-cols-12 gap-4 px-8 py-4 border-b border-[#1a1a18] hover:bg-zinc-900/20 transition-colors items-center text-xs font-mono relative">
 
                                     {/* Student ID */}
-                                    <div className="col-span-2 text-purple-500 truncate">
+                                    <div className="col-span-2 text-[#facc15] truncate">
                                         {cert.registration_number || 'N/A'}
                                     </div>
 
@@ -300,7 +300,7 @@ const CertificateLogs = () => {
                                     <div className="col-span-1 truncate flex items-center">
                                         <span className={`px-2 py-1 rounded-sm text-[10px] tracking-wider uppercase ${cert.status === 'finalized' || cert.status === 'issued' ? 'bg-[#00ff66]/10 text-[#00ff66] border border-[#00ff66]/20' :
                                                 cert.status === 'revoked' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
-                                                    'bg-purple-600/10 text-purple-500 border border-purple-500/20'
+                                                    'bg-[#facc15]/10 text-[#facc15] border border-[#facc15]/20'
                                             }`}>
                                             {cert.status || 'PENDING'}
                                         </span>
@@ -365,7 +365,7 @@ const CertificateLogs = () => {
                         >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
-                        <button className="px-5 py-2 border-r border-[#22221e] bg-purple-600 text-black font-extrabold transition-colors">
+                        <button className="px-5 py-2 border-r border-[#22221e] bg-[#facc15] text-black font-extrabold transition-colors">
                             {page}
                         </button>
                         <button

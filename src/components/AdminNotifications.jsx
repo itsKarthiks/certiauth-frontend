@@ -49,7 +49,7 @@ const AdminNotifications = () => {
       {/* Top Header */}
       <header className="w-full p-6 flex justify-between items-center border-b border-[#1a1a18] bg-[#0e0e0c]">
         <div className="flex items-center text-white font-black text-xl tracking-widest">
-          <span className="text-purple-500 mr-2">C_</span> CERTVIFY
+          <span className="text-yellow-500 mr-2">C_</span> CERTVIFY
         </div>
         <button 
           onClick={() => navigate('/dashboard')} 
@@ -81,8 +81,8 @@ const AdminNotifications = () => {
             >
               <div className="flex flex-col text-left">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-purple-500 text-sm">⚠️</span>
-                  <span className="text-purple-500 text-[10px] md:text-xs tracking-[0.15em] font-bold">
+                  <span className="text-yellow-500 text-sm">⚠️</span>
+                  <span className="text-yellow-500 text-[10px] md:text-xs tracking-[0.15em] font-bold">
                     EVENT_TYPE: REVOKE
                   </span>
                 </div>
@@ -93,7 +93,7 @@ const AdminNotifications = () => {
                 <div>
                   <button
                     onClick={() => navigate('/resolve', { state: { requestData: notif } })}
-                    className="bg-purple-600 hover:bg-purple-500 text-black font-black text-[9px] md:text-[10px] tracking-[0.2em] px-5 py-2 uppercase transition-colors active:scale-95"
+                    className="bg-[#facc15] hover:bg-yellow-400 text-black font-black text-[9px] md:text-[10px] tracking-[0.2em] px-5 py-2 uppercase transition-colors active:scale-95"
                   >
                     [ RESOLVE ]
                   </button>

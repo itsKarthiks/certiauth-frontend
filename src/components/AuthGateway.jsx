@@ -39,18 +39,18 @@ const AuthGateway = () => {
 
             {/* Terminal Main Container */}
             <div className="relative w-full max-w-lg bg-[#11110e] border border-gray-800 shadow-2xl flex flex-col z-10">
-                {/* Purple Corner Brackets */}
-                <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-purple-500"></div>
-                <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-purple-500"></div>
-                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-purple-500"></div>
-                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-purple-500"></div>
+                {/* Yellow Corner Brackets */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-yellow-500"></div>
+                <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-yellow-500"></div>
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-yellow-500"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-yellow-500"></div>
 
 
 
                 <div className="p-10 md:p-14 flex flex-col items-center">
                     {/* Shield Icon Box */}
-                    <div className="w-14 h-14 bg-[#1a1a14] border border-purple-500/30 flex items-center justify-center rounded-sm mb-8 shadow-[0_0_15px_rgba(147,51,234,0.1)]">
-                        <Shield className="w-6 h-6 text-purple-500" />
+                    <div className="w-14 h-14 bg-[#1a1a14] border border-yellow-500/30 flex items-center justify-center rounded-sm mb-8 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                        <Shield className="w-6 h-6 text-yellow-500" />
                     </div>
 
                     {/* Title Area */}
@@ -71,7 +71,7 @@ const AuthGateway = () => {
                     {/* Login Form */}
                     <form onSubmit={handleLogin} className="w-full flex flex-col">
                         <div className="mb-6">
-                            <label className="block text-[10px] text-purple-500 tracking-[0.1em] uppercase mb-2 font-bold">
+                            <label className="block text-[10px] text-yellow-600 tracking-[0.1em] uppercase mb-2 font-bold">
                                 EMAIL ADDRESS
                             </label>
                             <div className="relative">
@@ -83,14 +83,14 @@ const AuthGateway = () => {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-[#0a0a08] border border-gray-800 text-white pl-12 pr-4 py-4 text-xs font-mono outline-none focus:border-purple-500/50 transition-colors placeholder-gray-700"
+                                    className="w-full bg-[#0a0a08] border border-gray-800 text-white pl-12 pr-4 py-4 text-xs font-mono outline-none focus:border-yellow-500/50 transition-colors placeholder-gray-700"
                                     placeholder="ENTER_ADMIN_EMAIL"
                                 />
                             </div>
                         </div>
 
                         <div className="mb-4">
-                            <label className="block text-[10px] text-purple-500 tracking-[0.1em] uppercase mb-2 font-bold">
+                            <label className="block text-[10px] text-yellow-600 tracking-[0.1em] uppercase mb-2 font-bold">
                                 PASSCODE
                             </label>
                             <div className="relative">
@@ -102,13 +102,13 @@ const AuthGateway = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-[#0a0a08] border border-gray-800 text-white pl-12 pr-12 py-4 text-xs font-mono outline-none focus:border-purple-500/50 transition-colors placeholder-gray-700 tracking-[0.2em]"
+                                    className="w-full bg-[#0a0a08] border border-gray-800 text-white pl-12 pr-12 py-4 text-xs font-mono outline-none focus:border-yellow-500/50 transition-colors placeholder-gray-700 tracking-[0.2em]"
                                     placeholder="•••••••••••••"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-purple-500 transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-[#facc15] transition-colors"
                                 >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
@@ -116,7 +116,7 @@ const AuthGateway = () => {
                         </div>
 
                         <div className="flex justify-end mb-10">
-                            <a href="#" className="text-[10px] text-purple-500 hover:text-purple-500 border-b border-purple-600/30 border-dashed pb-0.5 tracking-widest uppercase transition-colors">
+                            <a href="#" className="text-[10px] text-yellow-600 hover:text-yellow-500 border-b border-yellow-600/30 border-dashed pb-0.5 tracking-widest uppercase transition-colors">
                                 FORGOT_CREDENTIALS?
                             </a>
                         </div>
@@ -124,7 +124,7 @@ const AuthGateway = () => {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-black font-extrabold tracking-[0.15em] py-4 text-sm transition-colors uppercase flex justify-center items-center"
+                            className="w-full bg-[#facc15] hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-extrabold tracking-[0.15em] py-4 text-sm transition-colors uppercase flex justify-center items-center"
                         >
                             {isLoading ? (
                                 'AUTHENTICATING...'
@@ -145,7 +145,7 @@ const AuthGateway = () => {
                     </div>
 
                     <div className="text-[10px] tracking-widest text-gray-500">
-                        <Link to="/" className="text-white hover:text-purple-500 underline underline-offset-4 decoration-1 decoration-gray-600 transition-colors uppercase">
+                        <Link to="/" className="text-white hover:text-yellow-500 underline underline-offset-4 decoration-1 decoration-gray-600 transition-colors uppercase">
                             Public Portal
                         </Link>
                     </div>
