@@ -18,6 +18,7 @@ const StudentDashboard = () => {
     const [profile, setProfile] = useState(null);
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [requestStatus, setRequestStatus] = useState('LOADING');
 
     useEffect(() => {
         const getDashboardData = async () => {
@@ -50,6 +51,31 @@ const StudentDashboard = () => {
 
                     if (certError) throw certError;
                     setCertificates(certs || []);
+
+                    // 4. Fetch the latest correction request status
+                    const fetchCorrectionStatus = async (identifier) => {
+                        try {
+                            const { data, error } = await supabase
+                                .from('correction_requests')
+                                .select('status')
+                                .or(`original_reg_no.eq.${identifier},student_email.eq.${identifier}`)
+                                .order('created_at', { ascending: false })
+                                .limit(1);
+
+                            if (error) throw error;
+                            
+                            if (data && data.length > 0) {
+                                setRequestStatus(data[0].status.toUpperCase());
+                            } else {
+                                setRequestStatus('NONE');
+                            }
+                        } catch (err) {
+                            console.error("Error fetching request status:", err);
+                            setRequestStatus('ERROR');
+                        }
+                    };
+                    
+                    await fetchCorrectionStatus(profileData.registration_number || currentUser.email);
                 }
 
             } catch (error) {
@@ -216,7 +242,7 @@ const StudentDashboard = () => {
                                 <div className="bg-[#0a0a0a] border border-red-900/50 p-8 flex-grow relative overflow-hidden shadow-2xl">
                                     {/* Top Red Accent */}
                                     <div className="absolute top-0 left-0 w-full h-1 bg-red-500/50"></div>
-                                    
+
                                     <div className="flex justify-between items-center mb-16">
                                         <h2 className="text-zinc-400 font-mono text-xs tracking-widest">
                                             <span className="text-red-500">{'>_'}</span> SECURITY_ALERT
@@ -234,7 +260,7 @@ const StudentDashboard = () => {
                                         </p>
                                     </div>
                                 </div>
-                                
+
                                 {/* Replaces the yellow button to maintain layout height/structure */}
                                 <div className="h-[60px] border border-red-900/30 bg-[#050000] flex items-center justify-center">
                                     <span className="text-red-900 font-mono text-[10px] tracking-widest uppercase">
@@ -253,20 +279,18 @@ const StudentDashboard = () => {
                                             <Terminal className={`w-4 h-4 ${certificates[0]?.status === 'finalized' ? 'text-green-500' : hasCert ? 'text-yellow-500' : 'text-zinc-600'}`} />
                                             <h2 className="text-white font-black tracking-[0.2em] uppercase text-xs">CERT_STATUS_MONITOR</h2>
                                         </div>
-                                        <div className={`px-3 py-1 border ${
-                                            certificates[0]?.status === 'finalized'
+                                        <div className={`px-3 py-1 border ${certificates[0]?.status === 'finalized'
                                                 ? 'border-green-500/30 bg-green-500/5'
                                                 : hasCert
                                                     ? 'border-yellow-500/30 bg-yellow-500/5'
                                                     : 'border-zinc-800 bg-zinc-900/30'
-                                        }`}>
-                                            <span className={`text-[9px] font-black tracking-[0.2em] ${
-                                                certificates[0]?.status === 'finalized'
+                                            }`}>
+                                            <span className={`text-[9px] font-black tracking-[0.2em] ${certificates[0]?.status === 'finalized'
                                                     ? 'text-green-500'
                                                     : hasCert
                                                         ? 'text-yellow-500'
                                                         : 'text-zinc-500'
-                                            }`}>
+                                                }`}>
                                                 {certificates[0]?.status === 'finalized' ? 'DOCUMENT_READY' : hasCert ? 'ACTION_REQUIRED' : 'SYSTEM_STANDBY'}
                                             </span>
                                         </div>
@@ -277,19 +301,17 @@ const StudentDashboard = () => {
                                             {/* Step 1 */}
                                             <div className="flex gap-8 pb-12 relative">
                                                 <div className="absolute left-4 top-8 bottom-0 w-px bg-zinc-800"></div>
-                                                <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${
-                                                    hasCert
+                                                <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${hasCert
                                                         ? 'bg-zinc-900 border border-green-500/50'
                                                         : 'bg-black border-2 border-yellow-500/60'
-                                                }`}>
+                                                    }`}>
                                                     {hasCert
                                                         ? <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
                                                         : <Clock className="w-4 h-4 text-[#facc15] animate-pulse" strokeWidth={2} />}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <h3 className={`text-xs uppercase tracking-wider font-bold ${
-                                                        hasCert ? 'text-zinc-200' : 'text-yellow-500/80'
-                                                    }`}>
+                                                    <h3 className={`text-xs uppercase tracking-wider font-bold ${hasCert ? 'text-zinc-200' : 'text-yellow-500/80'
+                                                        }`}>
                                                         {hasCert ? '01 // DATA_SYNC_COMPLETE' : '01 // AWAITING_ADMIN_SYNC'}
                                                     </h3>
                                                     <p className="text-[11px] text-zinc-500 mt-2 leading-relaxed font-medium">
@@ -303,19 +325,17 @@ const StudentDashboard = () => {
                                             {/* Step 2 */}
                                             <div className={`flex gap-8 pb-12 relative ${!hasCert ? 'opacity-30' : ''}`}>
                                                 <div className="absolute left-4 top-0 bottom-0 w-px bg-zinc-800"></div>
-                                                <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${
-                                                    hasCert
+                                                <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${hasCert
                                                         ? 'bg-zinc-900 border border-green-500/50'
                                                         : 'bg-zinc-900 border border-zinc-700'
-                                                }`}>
+                                                    }`}>
                                                     {hasCert
                                                         ? <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
                                                         : <Check className="w-4 h-4 text-zinc-700" strokeWidth={3} />}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <h3 className={`text-xs uppercase tracking-wider font-bold ${
-                                                        hasCert ? 'text-zinc-200' : 'text-zinc-600'
-                                                    }`}>02 // DRAFT_GENERATED</h3>
+                                                    <h3 className={`text-xs uppercase tracking-wider font-bold ${hasCert ? 'text-zinc-200' : 'text-zinc-600'
+                                                        }`}>02 // DRAFT_GENERATED</h3>
                                                     <p className="text-[11px] text-zinc-500 mt-2 leading-relaxed font-medium">Secure digital preview rendered via Certvify Engine.</p>
                                                 </div>
                                             </div>
@@ -323,13 +343,12 @@ const StudentDashboard = () => {
                                             {/* Step 3 */}
                                             <div className={`flex gap-8 pb-12 relative ${!hasCert ? 'opacity-30' : ''}`}>
                                                 <div className="absolute left-4 top-0 bottom-0 w-px bg-zinc-800"></div>
-                                                <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${
-                                                    !hasCert
+                                                <div className={`z-10 w-8 h-8 flex items-center justify-center flex-shrink-0 ${!hasCert
                                                         ? 'bg-zinc-900 border border-zinc-700'
                                                         : certificates[0]?.status === 'finalized'
                                                             ? 'bg-zinc-900 border border-green-500/50'
                                                             : 'bg-black border-2 border-yellow-500 shadow-[0_0_15px_rgba(250,204,21,0.2)]'
-                                                }`}>
+                                                    }`}>
                                                     {!hasCert
                                                         ? <Clock className="w-4 h-4 text-zinc-700" strokeWidth={2} />
                                                         : certificates[0]?.status === 'finalized'
@@ -337,20 +356,18 @@ const StudentDashboard = () => {
                                                             : <Clock className="w-4 h-4 text-yellow-500" strokeWidth={3} />}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <h3 className={`text-xs uppercase tracking-widest ${
-                                                        !hasCert
+                                                    <h3 className={`text-xs uppercase tracking-widest ${!hasCert
                                                             ? 'text-zinc-600 font-bold'
                                                             : certificates[0]?.status === 'finalized'
                                                                 ? 'text-zinc-200 font-bold'
                                                                 : 'text-yellow-500 font-black'
-                                                    }`}>03 // PENDING_VERIFICATION</h3>
-                                                    <p className={`text-[11px] mt-2 leading-relaxed font-medium ${
-                                                        !hasCert
+                                                        }`}>03 // PENDING_VERIFICATION</h3>
+                                                    <p className={`text-[11px] mt-2 leading-relaxed font-medium ${!hasCert
                                                             ? 'text-zinc-600'
                                                             : certificates[0]?.status === 'finalized'
                                                                 ? 'text-zinc-500'
                                                                 : 'text-zinc-300 font-bold bg-yellow-500/5 p-3 border-l-2 border-yellow-500'
-                                                    }`}>
+                                                        }`}>
                                                         {!hasCert
                                                             ? 'Awaiting certificate draft from Registrar.'
                                                             : certificates[0]?.status === 'finalized'
@@ -432,6 +449,52 @@ const StudentDashboard = () => {
                                 <span className="w-2 h-2 rounded-full bg-[#00ff66] shadow-[0_0_8px_#00ff66]"></span>
                             </div>
                         </div>
+
+                        {/* CORRECTION STATUS MONITOR */}
+                        <div className="border border-[#1a1a18] p-6 mt-6 bg-[#050505]">
+                            <h3 className="text-zinc-500 font-mono text-[10px] font-bold tracking-widest uppercase mb-4 flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 bg-zinc-500"></span>
+                                CORRECTION_REQUEST_STATUS
+                            </h3>
+                            
+                            <div className="flex items-center justify-between border border-zinc-800/50 p-4 bg-black">
+                                <span className="text-gray-400 font-mono text-[10px] uppercase tracking-wider">LATEST_TRANSACTION:</span>
+                                
+                                {requestStatus === 'LOADING' && (
+                                    <span className="text-zinc-500 font-mono text-[10px] font-bold tracking-widest uppercase animate-pulse">FETCHING...</span>
+                                )}
+                                
+                                {requestStatus === 'NONE' && (
+                                    <span className="text-zinc-500 font-mono text-[10px] font-bold tracking-widest uppercase border border-zinc-800 px-3 py-1 bg-zinc-900/50">
+                                        [ NO_ACTIVE_REQUESTS ]
+                                    </span>
+                                )}
+                                
+                                {requestStatus === 'PENDING' && (
+                                    <span className="text-yellow-500 font-mono text-[10px] font-bold tracking-widest uppercase border border-yellow-500/20 px-3 py-1 bg-yellow-500/10">
+                                        [ PENDING_ADMIN_REVIEW ]
+                                    </span>
+                                )}
+                                
+                                {requestStatus === 'RESOLVED' && (
+                                    <span className="text-green-500 font-mono text-[10px] font-bold tracking-widest uppercase border border-green-500/20 px-3 py-1 bg-green-500/10">
+                                        [ APPROVED_AND_SYNCED ]
+                                    </span>
+                                )}
+                                
+                                {requestStatus === 'REJECTED' && (
+                                    <span className="text-red-500 font-mono text-[10px] font-bold tracking-widest uppercase border border-red-500/20 px-3 py-1 bg-red-500/10">
+                                        [ REQUEST_DECLINED ]
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {requestStatus === 'REJECTED' && (
+                                <p className="text-red-500/60 font-mono text-[9px] uppercase mt-3 leading-relaxed">
+                                    * Your recent amendment request was reviewed and dismissed by the Registrar. The original document remains valid.
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -440,23 +503,6 @@ const StudentDashboard = () => {
             </main>
 
             {/* --- FOOTER --- */}
-            <footer className="border-t border-zinc-800/50 bg-black/40 px-12 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="flex items-center gap-6">
-                    <div className="text-[10px] text-zinc-700 font-black tracking-[0.3em] uppercase">
-                        © 2026 CERTVIFY_CORE_v1.0
-                    </div>
-                    <div className="w-px h-4 bg-zinc-800 hidden md:block"></div>
-                    <div className="text-[9px] text-zinc-800 font-bold uppercase hidden md:block tracking-widest">
-                        SECURE_ACCESS_PROTOCOL_ACTIVE
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-10 text-[9px] text-zinc-600 font-black tracking-[0.2em] uppercase">
-                    <a href="#" className="hover:text-yellow-500 transition-colors">[ SECURITY ]</a>
-                    <a href="#" className="hover:text-yellow-500 transition-colors">[ PRIVACY ]</a>
-                    <a href="#" className="hover:text-yellow-500 transition-colors">[ SUPPORT ]</a>
-                </div>
-            </footer>
 
         </div>
     );

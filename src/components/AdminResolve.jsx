@@ -9,6 +9,7 @@ const AdminResolve = () => {
   const requestData = location.state?.requestData;
   const [originalData, setOriginalData] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
 
   useEffect(() => {
     const fetchOriginal = async () => {
@@ -39,6 +40,21 @@ const AdminResolve = () => {
 
   const regVal = requestData?.corrected_reg_no || originalData?.reg_no;
   const regChanged = requestData?.corrected_reg_no && String(requestData.corrected_reg_no) !== String(originalData?.reg_no);
+
+  const handleDecline = async () => {
+    try {
+      const { error } = await supabase
+        .from('correction_requests')
+        .update({ status: 'Rejected' })
+        .eq('id', requestData.id); // Ensure this matches actual state variable for the request ID
+
+      if (error) throw error;
+      navigate('/notifications');
+    } catch (err) {
+      console.error("Error rejecting request:", err);
+      alert("Failed to reject the request.");
+    }
+  };
 
   const handleCommitProtocol = async () => {
     try {
@@ -121,7 +137,7 @@ const AdminResolve = () => {
           <button className="text-[#facc15] border-b-2 border-[#facc15] pb-1">COMPARE</button>
         </nav>
 
-        <button className="text-[#facc15] hover:text-white transition-colors">
+        <button className="text-[#facc15] hover:text-white transition-colors" onClick={() => navigate('/dashboard')}>
           <Home size={20} />
         </button>
       </header>
@@ -253,7 +269,10 @@ const AdminResolve = () => {
         </div>
 
         <div className="flex gap-4 items-center">
-          <button className="bg-transparent border border-zinc-600 text-zinc-400 px-6 py-2 text-xs hover:border-white hover:text-white transition-colors tracking-widest">
+          <button 
+            onClick={() => setShowDeclineModal(true)}
+            className="bg-transparent border border-zinc-600 text-zinc-400 px-6 py-2 text-xs hover:border-white hover:text-white transition-colors tracking-widest"
+          >
             DECLINE_UPDATE
           </button>
           <button 
@@ -290,6 +309,32 @@ const AdminResolve = () => {
                 className="px-6 py-2 bg-[#facc15] text-black font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-colors"
               >
                 [ CONFIRM_COMMIT ]
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeclineModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#050000] border border-red-500/50 p-8 max-w-lg w-full shadow-2xl relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
+            
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-red-500 text-xl">⚠️</span>
+              <h3 className="text-red-500 font-mono text-sm font-bold tracking-widest">CONFIRM_REJECTION</h3>
+            </div>
+            
+            <p className="text-gray-400 font-mono text-xs mb-8 leading-relaxed">
+              Are you sure you want to dismiss this correction request? This will mark the request as <span className="text-red-500 font-bold">REJECTED</span> and the student's original certificate will remain unchanged.
+            </p>
+            
+            <div className="flex justify-end gap-4">
+              <button onClick={() => setShowDeclineModal(false)} className="px-6 py-2 border border-zinc-700 text-zinc-400 font-mono text-[10px] font-bold uppercase hover:border-white hover:text-white transition-colors">
+                [ CANCEL ]
+              </button>
+              <button onClick={handleDecline} className="px-6 py-2 bg-red-500 text-black font-mono text-[10px] font-bold uppercase hover:bg-white transition-colors">
+                [ CONFIRM_REJECT ]
               </button>
             </div>
           </div>

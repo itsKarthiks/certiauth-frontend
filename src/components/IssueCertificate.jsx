@@ -20,6 +20,7 @@ const IssueCertificate = () => {
     const incomingCorrection = location.state?.correctionData || null;
 
     // Form State
+    const [modalState, setModalState] = useState({ isOpen: false, step: 'confirm', errorMsg: '' });
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -31,6 +32,7 @@ const IssueCertificate = () => {
     const [cgpa, setCgpa] = useState('');
 
     // Bulk Issuance State
+    const [bulkReport, setBulkReport] = useState({ isOpen: false, step: 'preview', validStudents: [], skipped: [] });
     const [file, setFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
@@ -80,16 +82,20 @@ const IssueCertificate = () => {
         }));
     };
 
-    const handleProceed = async () => {
+    const handleProceed = () => {
+        const { firstName, lastName, registrationNumber } = formData;
+        const fullName = `${firstName} ${lastName}`.trim();
+        if (!fullName || !registrationNumber || !course || !cgpa) {
+            alert("Please fill out all required fields!");
+            return;
+        }
+        setModalState({ isOpen: true, step: 'confirm', errorMsg: '' });
+    };
+
+    const executeIssuance = async () => {
         setIsSubmitting(true);
         const { firstName, lastName, registrationNumber } = formData;
         const fullName = `${firstName} ${lastName}`.trim();
-
-        if (!fullName || !registrationNumber || !course || !cgpa) {
-            alert("Please fill out all required fields (Name, Registration Number, Course, CGPA)!");
-            setIsSubmitting(false);
-            return;
-        }
 
         try {
             // 1. Grab the admin badge from local storage
@@ -116,7 +122,7 @@ const IssueCertificate = () => {
             if (!response.ok) throw new Error(result.message || 'Failed to issue certificate');
 
             console.log('API Response:', result);
-            alert('Certificate securely issued with Digital Signature!');
+            setModalState({ isOpen: true, step: 'success', errorMsg: '' });
 
             // Reset Form and State
             setFormData({ firstName: '', lastName: '', registrationNumber: '', dob: '' });
@@ -124,9 +130,30 @@ const IssueCertificate = () => {
             setCgpa('');
         } catch (err) {
             console.error("Issuance Error:", err);
-            alert(err.message || 'Failed to issue certificate via API');
+            setModalState({ isOpen: true, step: 'error', errorMsg: err.message || 'Failed to issue' });
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const executeBulkIssuance = async () => {
+        setBulkReport(prev => ({ ...prev, step: 'processing' }));
+        try {
+            const token = localStorage.getItem('adminToken');
+            await axios.post(
+                'http://localhost:5000/api/certificates/bulk-issue',
+                { students: bulkReport.validStudents },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            
+            // Move to success step and clean up file input
+            setBulkReport(prev => ({ ...prev, step: 'success' }));
+            setFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        } catch (err) {
+            console.error('Bulk Issuance Error:', err);
+            alert(err.response?.data?.message || 'Failed to perform bulk issuance.');
+            setBulkReport({ isOpen: false, step: 'preview', validStudents: [], skipped: [] });
         }
     };
 
@@ -147,24 +174,51 @@ const IssueCertificate = () => {
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-                // Normalizing headers to match database snake_case keys
+                // Normalizing headers to match database snake_case keys (Added exact matches for new template)
                 const formattedData = jsonData.map(row => ({
-                    student_name: row['student_name'] || row['studentName'] || row['Student Name'] || row['student name'] || row['Name'] || '',
-                    registration_number: String(row['registration_number'] || row['registrationNumber'] || row['student_id'] || row['Student ID'] || row['ID'] || ''),
+                    student_name: row['Student_Name'] || row['student_name'] || row['studentName'] || row['Student Name'] || row['Name'] || '',
+                    registration_number: String(row['Registration_Number'] || row['registration_number'] || row['registrationNumber'] || row['student_id'] || row['Student ID'] || row['ID'] || ''),
                     program: row['program'] || row['Program'] || row['Course'] || 'B.Tech Computer Science and Engineering',
                     cgpa: String(row['cgpa'] || row['CGPA'] || row['Grade'] || '')
                 }));
 
-                const token = localStorage.getItem('adminToken');
-                const response = await axios.post(
-                    'http://localhost:5000/api/certificates/bulk-issue',
-                    { students: formattedData },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
+                // PRE-FLIGHT SAFETY CHECK: Stop the API call if critical data is missing
+                const missingDataIndex = formattedData.findIndex(s => !s.student_name.trim() || !s.registration_number.trim() || !s.cgpa.trim());
+                
+                if (missingDataIndex !== -1) {
+                    alert(`Data extraction failed near row ${missingDataIndex + 2} in your Excel sheet. Please ensure your headers are exact: Registration_Number, Student_Name, CGPA.`);
+                    setIsUploading(false);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                    return; // Abort the backend request
+                }
 
-                alert(response.data.message || 'Bulk issuance complete!');
-                setFile(null);
-                if (fileInputRef.current) fileInputRef.current.value = '';
+                // 1. Query Supabase to find duplicates before doing anything
+                const regNos = formattedData.map(s => s.registration_number);
+                const { data: existingRecords, error } = await supabase
+                    .from('certificates')
+                    .select('registration_number')
+                    .in('registration_number', regNos);
+
+                if (error) {
+                    alert("Failed to verify database for duplicates.");
+                    setIsUploading(false);
+                    return;
+                }
+
+                const existingRegNos = existingRecords.map(r => r.registration_number);
+                
+                // 2. Separate valid students from duplicates
+                const validStudents = formattedData.filter(s => !existingRegNos.includes(s.registration_number));
+                const skippedStudents = formattedData.filter(s => existingRegNos.includes(s.registration_number)).map(s => s.registration_number);
+
+                // 3. Open Preview Modal
+                setBulkReport({
+                    isOpen: true,
+                    step: 'preview',
+                    validStudents: validStudents,
+                    skipped: skippedStudents
+                });
+                setIsUploading(false);
             } catch (err) {
                 console.error('Bulk Issuance Error:', err);
                 alert(err.response?.data?.message || 'Failed to perform bulk issuance.');
@@ -407,6 +461,148 @@ const IssueCertificate = () => {
 
 
             </div>
+
+            {modalState.isOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="bg-[#050000] border border-yellow-500/50 p-8 max-w-lg w-full shadow-2xl relative">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-yellow-500"></div>
+                        
+                        {modalState.step === 'confirm' && (
+                            <>
+                                <div className="flex items-center gap-3 mb-6">
+                                    <span className="text-yellow-500 text-xl">⚠️</span>
+                                    <h3 className="text-yellow-500 font-mono text-sm font-bold tracking-widest">VERIFY_DATA_INTEGRITY</h3>
+                                </div>
+                                <div className="text-gray-400 font-mono text-xs mb-8 space-y-2 bg-[#111] p-4 border border-zinc-800">
+                                    <p><span className="text-zinc-500">NAME:</span> {formData.firstName} {formData.lastName}</p>
+                                    <p><span className="text-zinc-500">REG_NO:</span> {formData.registrationNumber}</p>
+                                    <p><span className="text-zinc-500">COURSE:</span> {course}</p>
+                                    <p><span className="text-zinc-500">CGPA:</span> {cgpa}</p>
+                                </div>
+                                <p className="text-zinc-500 font-mono text-[10px] mb-6 uppercase">Are you sure you want to cryptographically sign and issue this certificate?</p>
+                                <div className="flex justify-end gap-4">
+                                    <button onClick={() => setModalState({ isOpen: false, step: 'confirm', errorMsg: '' })} className="px-6 py-2 border border-zinc-700 text-zinc-400 font-mono text-[10px] font-bold uppercase hover:border-white hover:text-white transition-colors" disabled={isSubmitting}>
+                                        [ CANCEL ]
+                                    </button>
+                                    <button onClick={executeIssuance} disabled={isSubmitting} className="px-6 py-2 bg-yellow-500 text-black font-mono text-[10px] font-bold uppercase hover:bg-white transition-colors">
+                                        {isSubmitting ? '[ PROCESSING... ]' : '[ CONFIRM_ISSUE ]'}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                        {modalState.step === 'success' && (
+                            <>
+                                <div className="flex items-center gap-3 mb-6">
+                                    <span className="text-green-500 text-xl">✓</span>
+                                    <h3 className="text-green-500 font-mono text-sm font-bold tracking-widest">CRYPTOGRAPHIC_SIGNATURE_APPLIED</h3>
+                                </div>
+                                <p className="text-gray-400 font-mono text-xs leading-relaxed mb-8">
+                                    The certificate has been securely issued and recorded in the database. The digital signature has been successfully generated.
+                                </p>
+                                <div className="flex justify-end">
+                                    <button onClick={() => setModalState({ isOpen: false, step: 'confirm', errorMsg: '' })} className="px-6 py-2 bg-zinc-800 text-white font-mono text-[10px] font-bold uppercase hover:bg-zinc-700 transition-colors">
+                                        [ ACKNOWLEDGE ]
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                        {modalState.step === 'error' && (
+                            <>
+                                <div className="flex items-center gap-3 mb-6">
+                                    <span className="text-red-500 text-xl">✕</span>
+                                    <h3 className="text-red-500 font-mono text-sm font-bold tracking-widest">ISSUANCE_FAILED</h3>
+                                </div>
+                                <p className="text-gray-400 font-mono text-xs leading-relaxed mb-8">
+                                    {modalState.errorMsg}
+                                </p>
+                                <div className="flex justify-end">
+                                    <button onClick={() => setModalState({ isOpen: false, step: 'confirm', errorMsg: '' })} className="px-6 py-2 border border-zinc-700 text-zinc-400 font-mono text-[10px] font-bold uppercase hover:border-white hover:text-white transition-colors">
+                                        [ CLOSE ]
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                    </div>
+                </div>
+            )}
+
+            {bulkReport.isOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="bg-[#050000] border border-yellow-500/50 p-8 max-w-xl w-full shadow-2xl relative">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-yellow-500"></div>
+                        
+                        {bulkReport.step === 'preview' && (
+                            <>
+                                <div className="flex items-center gap-3 mb-6">
+                                    <span className="text-yellow-500 text-xl">📊</span>
+                                    <h3 className="text-yellow-500 font-mono text-sm font-bold tracking-widest">PRE-FLIGHT_BATCH_REPORT</h3>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                    <div className="bg-[#111] border border-green-500/30 p-4">
+                                        <p className="text-zinc-500 font-mono text-[10px] uppercase mb-1">Ready to Mint</p>
+                                        <p className="text-green-400 font-mono text-2xl font-black">{bulkReport.validStudents.length}</p>
+                                    </div>
+                                    <div className="bg-[#111] border border-red-500/30 p-4">
+                                        <p className="text-zinc-500 font-mono text-[10px] uppercase mb-1">Duplicates Detected</p>
+                                        <p className="text-red-400 font-mono text-2xl font-black">{bulkReport.skipped.length}</p>
+                                    </div>
+                                </div>
+
+                                {bulkReport.skipped.length > 0 && (
+                                    <div className="mb-6">
+                                        <p className="text-zinc-400 font-mono text-xs mb-2 uppercase tracking-wider">The following IDs will be skipped to prevent overwrites:</p>
+                                        <div className="bg-black border border-zinc-800 p-3 max-h-24 overflow-y-auto font-mono text-xs text-zinc-500">
+                                            <ul className="list-disc list-inside space-y-1">
+                                                {bulkReport.skipped.map(regNo => (
+                                                    <li key={regNo} className="text-red-400/80">{regNo}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-end gap-4">
+                                    <button onClick={() => setBulkReport({ isOpen: false, step: 'preview', validStudents: [], skipped: [] })} className="px-6 py-2 border border-zinc-700 text-zinc-400 font-mono text-[10px] font-bold uppercase hover:border-white hover:text-white transition-colors">
+                                        [ CANCEL ]
+                                    </button>
+                                    <button onClick={executeBulkIssuance} disabled={bulkReport.validStudents.length === 0} className="px-6 py-2 bg-yellow-500 text-black font-mono text-[10px] font-bold uppercase hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                        [ CONFIRM_AND_ISSUE ]
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                        {bulkReport.step === 'processing' && (
+                            <div className="py-12 flex flex-col items-center justify-center">
+                                <div className="w-8 h-8 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                <p className="text-yellow-500 font-mono text-xs tracking-widest uppercase animate-pulse">GENERATING_CRYPTOGRAPHIC_SIGNATURES...</p>
+                            </div>
+                        )}
+
+                        {bulkReport.step === 'success' && (
+                            <>
+                                <div className="flex items-center gap-3 mb-6">
+                                    <span className="text-green-500 text-xl">✓</span>
+                                    <h3 className="text-green-500 font-mono text-sm font-bold tracking-widest">BATCH_ISSUANCE_COMPLETE</h3>
+                                </div>
+                                <p className="text-gray-400 font-mono text-xs leading-relaxed mb-8">
+                                    Successfully minted {bulkReport.validStudents.length} new certificates. Digital signatures have been generated and secured in the registry.
+                                </p>
+                                <div className="flex justify-end">
+                                    <button onClick={() => setBulkReport({ isOpen: false, step: 'preview', validStudents: [], skipped: [] })} className="px-6 py-2 bg-zinc-800 text-white font-mono text-[10px] font-bold uppercase hover:bg-zinc-700 transition-colors">
+                                        [ ACKNOWLEDGE ]
+                                    </button>
+                                </div>
+                            </>
+                        )}
+
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

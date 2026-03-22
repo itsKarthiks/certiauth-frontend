@@ -136,21 +136,46 @@ const AdminDashboard = () => {
 
     const handleExport = async () => {
         try {
-            const token = localStorage.getItem('adminToken');
-            const res = await axios.get('http://localhost:5000/api/certificates/export', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            console.log("Initiating Frontend Export...");
+            
+            // 1. Fetch all certificates directly from Supabase
+            const { data, error } = await supabase
+                .from('certificates')
+                .select('*')
+                .order('issued_at', { ascending: false });
 
-            // Convert JSON data to an Excel worksheet
-            const worksheet = XLSX.utils.json_to_sheet(res.data);
+            if (error) throw error;
+
+            if (!data || data.length === 0) {
+                alert("No data found to export.");
+                return;
+            }
+
+            // 2. Format the data into clean, readable columns for Excel
+            const exportData = data.map(cert => ({
+                'Registration Number': cert.registration_number,
+                'Student Name': cert.student_name,
+                'Course': cert.course,
+                'CGPA': cert.cgpa,
+                'Status': cert.status ? cert.status.toUpperCase() : 'UNKNOWN',
+                'Issue Date': cert.issued_at ? new Date(cert.issued_at).toLocaleString() : 'N/A',
+                'Digital Signature': cert.digital_signature || 'N/A'
+            }));
+
+            // 3. Generate the Excel Workbook
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Certificates");
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Certvify_Logs");
 
-            // Trigger the download as a true Excel file
-            XLSX.writeFile(workbook, "Certvify_Database_Export.xlsx");
-        } catch (error) {
-            console.error("Export Error:", error);
-            alert("Failed to export database.");
+            // 4. Trigger the native browser download
+            const dateString = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(workbook, `Certvify_System_Logs_${dateString}.xlsx`);
+            
+            console.log("Export Successful!");
+
+        } catch (err) {
+            console.error("Frontend Export Error:", err);
+            alert("Failed to generate export file. Check console for details.");
         }
     };
 
@@ -375,7 +400,7 @@ const AdminDashboard = () => {
                                         </div>
 
                                         <button 
-                                            onClick={() => handleResolve(req.id)}
+                                            onClick={() => navigate('/notifications')}
                                             className="bg-red-600 hover:bg-red-500 text-white font-black text-[9px] tracking-[0.2em] uppercase px-6 py-3 transition-all active:scale-[0.98]"
                                         >
                                             [ RESOLVE & REISSUE ]

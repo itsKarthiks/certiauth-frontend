@@ -60,13 +60,11 @@ const CorrectionForm = ({ certData: propCertData }) => {
     const [selections, setSelections] = useState({
         name: false,
         regNo: false,
-        course: false,
         cgpa: false
     });
     const [corrections, setCorrections] = useState({
         name: '',
         regNo: '',
-        course: '',
         cgpa: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,7 +114,6 @@ const CorrectionForm = ({ certData: propCertData }) => {
                     student_email: studentEmail,
                     corrected_name: selections.name ? corrections.name : null,
                     corrected_reg_no: selections.regNo ? corrections.regNo : null,
-                    corrected_course: selections.course ? corrections.course : null,
                     corrected_cgpa: selections.cgpa ? corrections.cgpa : null
                 }]);
 
@@ -208,15 +205,7 @@ const CorrectionForm = ({ certData: propCertData }) => {
                                         onToggle={toggleSelection}
                                         onChange={handleInputChange}
                                     />
-                                    <FormRow 
-                                        id="course" 
-                                        label="PROGRAM_MAJOR" 
-                                        placeholder="ENTER_REVISED_COURSE_TITLE" 
-                                        isSelected={selections.course}
-                                        value={corrections.course}
-                                        onToggle={toggleSelection}
-                                        onChange={handleInputChange}
-                                    />
+
                                     <FormRow 
                                         id="cgpa" 
                                         label="CUMULATIVE_GPA" 
