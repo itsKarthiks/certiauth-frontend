@@ -112,6 +112,7 @@ const CorrectionForm = ({ certData: propCertData }) => {
             const { error } = await supabase
                 .from('correction_requests')
                 .insert([{
+                    original_reg_no: certData?.registration_number,
                     student_email: studentEmail,
                     corrected_name: selections.name ? corrections.name : null,
                     corrected_reg_no: selections.regNo ? corrections.regNo : null,

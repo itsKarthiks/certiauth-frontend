@@ -8,20 +8,106 @@ const AdminResolve = () => {
   const navigate = useNavigate();
   const requestData = location.state?.requestData;
   const [originalData, setOriginalData] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     const fetchOriginal = async () => {
-      if (requestData?.student_email) {
-        const { data } = await supabase
+      const searchId = requestData?.original_reg_no || requestData?.corrected_reg_no;
+      if (searchId) {
+        const { data, error } = await supabase
           .from('certificates')
           .select('*')
-          .eq('student_email', requestData.student_email)
-          .single();
-        setOriginalData(data);
+          .eq('registration_number', searchId)
+          .limit(1); // Grabs only one record safely without throwing 406
+        
+        if (!error && data && data.length > 0) {
+          setOriginalData(data[0]); // Extract the object from the array
+        }
       }
     };
     fetchOriginal();
   }, [requestData]);
+
+  const nameVal = requestData?.corrected_name || originalData?.student_name;
+  const nameChanged = requestData?.corrected_name && requestData.corrected_name !== originalData?.student_name;
+
+  const courseVal = requestData?.corrected_course || originalData?.course;
+  const courseChanged = requestData?.corrected_course && requestData.corrected_course !== originalData?.course;
+
+  const cgpaVal = requestData?.corrected_cgpa || originalData?.cgpa;
+  const cgpaChanged = requestData?.corrected_cgpa && String(requestData.corrected_cgpa) !== String(originalData?.cgpa);
+
+  const regVal = requestData?.corrected_reg_no || originalData?.reg_no;
+  const regChanged = requestData?.corrected_reg_no && String(requestData.corrected_reg_no) !== String(originalData?.reg_no);
+
+  const handleCommitProtocol = async () => {
+    try {
+      console.log("Initiating Commit Protocol...");
+      
+      // Explicitly log what the function sees when the button is clicked
+      console.log("DEBUG originalData:", originalData);
+      console.log("DEBUG requestData:", requestData);
+
+      // Absolute simplest fallback logic. If the left is null/empty/undefined, grab the right.
+      const finalRegNo = requestData?.corrected_reg_no || originalData?.registration_number;
+      const finalName = requestData?.corrected_name || originalData?.student_name;
+      const finalCourse = requestData?.corrected_course || originalData?.course;
+      const finalCgpa = requestData?.corrected_cgpa || originalData?.cgpa;
+
+      // Ultimate Safety Check
+      if (!finalRegNo || !finalName || !finalCourse) {
+        console.error("FATAL DATA MISSING:", { finalRegNo, finalName, finalCourse });
+        alert("System Error: Critical data is missing. Check console for details.");
+        return;
+      }
+
+      // Step 1: Delete old certificate (Keep this on frontend to ensure cleanup)
+      const { error: deleteError } = await supabase
+        .from('certificates')
+        .delete()
+        .eq('registration_number', originalData.registration_number);
+        
+      if (deleteError) throw deleteError;
+
+      // Step 2: Route through Backend for Cryptographic Signing & Insertion
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch('http://localhost:5000/api/certificates/issue', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+              registrationNumber: finalRegNo,
+              name: finalName,
+              course: finalCourse,
+              cgpa: finalCgpa,
+              correctionId: requestData?.id
+          })
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Backend failed to sign the certificate');
+
+      // Step 3: Update Request status to Resolved
+      if (requestData?.id) {
+        const { error: updateError } = await supabase
+          .from('correction_requests')
+          .update({ status: 'Resolved' })
+          .eq('id', requestData.id);
+          
+        if (updateError) throw updateError;
+      }
+
+      console.log("Commit Successful. Rerouting...");
+      setShowConfirmModal(false);
+      navigate('/notifications'); 
+      
+    } catch (error) {
+      console.error("CRITICAL ERROR DURING COMMIT:", error);
+      alert("System Error: Failed to commit changes. Check console.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-8 font-mono uppercase">
@@ -71,9 +157,9 @@ const AdminResolve = () => {
               <div className="text-zinc-500 text-[10px] tracking-wider">CGPA</div>
               <div className="text-white text-lg mt-1 font-semibold">{originalData?.cgpa}</div>
             </div>
-            <div>
-              <div className="text-zinc-500 text-[10px] tracking-wider">REG_NO</div>
-              <div className="text-white text-lg mt-1 font-semibold">{originalData?.reg_no}</div>
+            <div className="mb-4 relative z-10">
+              <p className="text-[10px] uppercase text-zinc-600">REG_NO</p>
+              <p className="text-white text-lg mt-1">{originalData?.registration_number || 'UNKNOWN_ID'}</p>
             </div>
           </div>
 
@@ -101,89 +187,63 @@ const AdminResolve = () => {
 
           <div className="space-y-6 z-10 flex-grow">
             {/* NAME */}
-            <div>
-              {originalData && String(originalData.student_name) !== String(requestData?.corrected_name) ? (
-                <>
-                  <div className="text-[#facc15] text-[10px] tracking-wider font-bold">NAME [MODIFIED]</div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <div className="bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold">
-                      {requestData?.corrected_name}
-                    </div>
-                    <span className="text-[#facc15] font-bold text-xl">!</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-zinc-500 text-[10px] tracking-wider">NAME</div>
-                  <div className="text-white text-lg mt-1 font-semibold">{requestData?.corrected_name}</div>
-                </>
-              )}
+            <div className="mb-4">
+              <p className={`text-[10px] tracking-wider uppercase ${nameChanged ? 'text-[#facc15] font-bold' : 'text-zinc-500'}`}>
+                NAME {nameChanged && '[MODIFIED]'}
+              </p>
+              <div className={`flex items-center gap-3 mt-1`}>
+                <span className={nameChanged ? 'bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
+                  {nameVal}
+                </span>
+                {nameChanged && <span className="text-[#facc15] font-bold text-xl">!</span>}
+              </div>
             </div>
+
             {/* COURSE */}
-            <div>
-              {originalData && String(originalData.course) !== String(requestData?.corrected_course) ? (
-                <>
-                  <div className="text-[#facc15] text-[10px] tracking-wider font-bold">COURSE [MODIFIED]</div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <div className="bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold">
-                      {requestData?.corrected_course}
-                    </div>
-                    <span className="text-[#facc15] font-bold text-xl">!</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-zinc-500 text-[10px] tracking-wider">COURSE</div>
-                  <div className="text-white text-lg mt-1 font-semibold">{requestData?.corrected_course}</div>
-                </>
-              )}
+            <div className="mb-4">
+              <p className={`text-[10px] tracking-wider uppercase ${courseChanged ? 'text-[#facc15] font-bold' : 'text-zinc-500'}`}>
+                COURSE {courseChanged && '[MODIFIED]'}
+              </p>
+              <div className={`flex items-center gap-3 mt-1`}>
+                <span className={courseChanged ? 'bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
+                  {courseVal}
+                </span>
+                {courseChanged && <span className="text-[#facc15] font-bold text-xl">!</span>}
+              </div>
             </div>
+
             {/* CGPA */}
-            <div>
-              {originalData && String(originalData.cgpa) !== String(requestData?.corrected_cgpa) ? (
-                <>
-                  <div className="text-[#facc15] text-[10px] tracking-wider font-bold">CGPA [MODIFIED]</div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <div className="bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold">
-                      {requestData?.corrected_cgpa}
-                    </div>
-                    <span className="text-[#facc15] font-bold text-xl">!</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-zinc-500 text-[10px] tracking-wider">CGPA</div>
-                  <div className="text-white text-lg mt-1 font-semibold">{requestData?.corrected_cgpa}</div>
-                </>
-              )}
+            <div className="mb-4">
+              <p className={`text-[10px] tracking-wider uppercase ${cgpaChanged ? 'text-[#facc15] font-bold' : 'text-zinc-500'}`}>
+                CGPA {cgpaChanged && '[MODIFIED]'}
+              </p>
+              <div className={`flex items-center gap-3 mt-1`}>
+                <span className={cgpaChanged ? 'bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold' : 'text-white text-lg font-semibold'}>
+                  {cgpaVal}
+                </span>
+                {cgpaChanged && <span className="text-[#facc15] font-bold text-xl">!</span>}
+              </div>
             </div>
+
             {/* REG_NO */}
-            <div>
-              {originalData && String(originalData.reg_no) !== String(requestData?.corrected_reg_no) ? (
-                <>
-                  <div className="text-[#facc15] text-[10px] tracking-wider font-bold">REG_NO [MODIFIED]</div>
-                  <div className="flex items-center gap-3 mt-1">
-                    <div className="bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg font-bold">
-                      {requestData?.corrected_reg_no}
-                    </div>
-                    <span className="text-[#facc15] font-bold text-xl">!</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-zinc-500 text-[10px] tracking-wider">REG_NO</div>
-                  <div className="text-white text-lg mt-1 font-semibold">{requestData?.corrected_reg_no}</div>
-                </>
-              )}
+            <div className="mb-4 relative z-10">
+              <p className={`text-[10px] uppercase ${regChanged ? 'text-[#facc15] font-bold' : 'text-zinc-600'}`}>
+                REG_NO {regChanged && '[MODIFIED]'}
+              </p>
+              <div className={`flex items-center gap-3 ${regChanged ? 'mt-1' : ''}`}>
+                <span className={regChanged ? 'bg-[#1a1500] border border-[#facc15]/30 text-[#facc15] px-2 py-1 text-lg' : 'text-white text-lg mt-1'}>
+                  {(requestData?.corrected_reg_no && String(requestData.corrected_reg_no).trim() !== '') 
+                    ? requestData.corrected_reg_no 
+                    : originalData?.registration_number}
+                </span>
+                {regChanged && <span className="text-[#facc15] font-bold">!</span>}
+              </div>
             </div>
           </div>
 
           <div className="absolute bottom-4 left-6 text-6xl font-bold text-zinc-900/40 pointer-events-none select-none">
             02
           </div>
-          <button className="absolute bottom-8 right-8 bg-[#facc15] text-black px-6 py-2 text-xs font-bold hover:bg-white transition-colors tracking-widest">
-            COMMIT_CHANGES
-          </button>
         </div>
       </main>
 
@@ -196,8 +256,45 @@ const AdminResolve = () => {
           <button className="bg-transparent border border-zinc-600 text-zinc-400 px-6 py-2 text-xs hover:border-white hover:text-white transition-colors tracking-widest">
             DECLINE_UPDATE
           </button>
+          <button 
+            onClick={(e) => {
+              e.preventDefault(); // Prevent any default form behavior
+              setShowConfirmModal(true);
+              console.log("Modal Triggered"); // Debugging log
+            }} 
+            className="bg-[#facc15] text-black px-6 py-2 text-xs font-bold hover:bg-white transition-colors tracking-widest"
+          >
+            COMMIT_CHANGES
+          </button>
         </div>
       </div>
+
+      {/* CONFIRMATION MODAL OVERLAY */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-[#050000] border border-[#facc15]/50 p-6 max-w-lg w-full shadow-2xl relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-[#facc15]"></div>
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-[#facc15] text-xl">⚠️</span>
+              <h3 className="text-[#facc15] font-mono text-sm font-bold tracking-widest">{'>_'} SYSTEM_OVERRIDE_WARNING</h3>
+            </div>
+            <p className="text-zinc-400 font-mono text-xs leading-relaxed mb-8">
+              Are you sure you want to commit the changes? Committing will completely delete the old issued certificate and issue a new cryptographic certificate to the student. <span className="text-red-400">This action is irreversible.</span>
+            </p>
+            <div className="flex justify-end gap-4 mt-4">
+              <button onClick={() => setShowConfirmModal(false)} className="px-6 py-2 border border-zinc-700 text-zinc-400 font-mono text-[10px] font-bold uppercase tracking-widest hover:border-white hover:text-white transition-colors">
+                [ CANCEL ]
+              </button>
+              <button 
+                onClick={handleCommitProtocol}
+                className="px-6 py-2 bg-[#facc15] text-black font-mono text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-colors"
+              >
+                [ CONFIRM_COMMIT ]
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

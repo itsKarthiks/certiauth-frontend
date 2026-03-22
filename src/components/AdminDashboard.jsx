@@ -207,6 +207,11 @@ const AdminDashboard = () => {
                             <Activity className="w-4 h-4 mr-3 text-gray-600 group-hover:text-gray-400" strokeWidth={2} />
                             LOGS
                         </Link>
+
+                        <div onClick={() => navigate('/notifications')} className="flex items-center px-4 py-3 text-gray-400 hover:text-white hover:bg-[#141412] font-semibold text-xs tracking-widest transition-colors group mb-4 cursor-pointer">
+                            <Bell className="w-4 h-4 mr-3 text-gray-600 group-hover:text-gray-400" strokeWidth={2} />
+                            NOTIFICATIONS
+                        </div>
                     </nav>
                 </div>
 

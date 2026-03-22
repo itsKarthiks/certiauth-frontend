@@ -93,6 +93,33 @@ const CertificateLogs = () => {
         }
     };
 
+    const handleReinstate = async (registrationNumber) => {
+        try {
+            const { error } = await supabase
+                .from('certificates')
+                .update({ status: 'finalized' }) // Matches the active status in the database
+                .eq('registration_number', registrationNumber);
+            
+            if (error) throw error;
+
+            // Update local state to immediately reflect the change
+            setCertificates(prevCerts => 
+                prevCerts.map(cert => 
+                    cert.registration_number === registrationNumber 
+                        ? { ...cert, status: 'finalized' } 
+                        : cert
+                )
+            );
+            
+            // Close the dropdown
+            setOpenMenuId(null); 
+            
+        } catch (error) {
+            console.error("Error reinstating certificate:", error);
+            alert("Failed to reinstate certificate.");
+        }
+    };
+
     const handleToggleStatus = async (certificateId) => {
         try {
             const token = localStorage.getItem('adminToken');
@@ -290,15 +317,32 @@ const CertificateLogs = () => {
                                         </button>
 
                                         {openMenuId === cert.registration_number && (
-                                            <div className="absolute right-8 top-6 bg-[#0a0a0a] border border-zinc-800 z-50 rounded-sm shadow-2xl overflow-hidden">
-                                                <button
-                                                    onClick={() => triggerRevokeModal(cert.registration_number)}
-                                                    disabled={cert.status === 'revoked'}
-                                                    className="block w-full text-left px-6 py-3 text-xs text-red-500 hover:bg-zinc-900 transition-colors disabled:opacity-30 disabled:cursor-not-allowed uppercase whitespace-nowrap"
-                                                >
-                                                    {cert.status === 'revoked' ? 'Already Revoked' : 'Revoke Cert'}
-                                                </button>
-                                            </div>
+                                            <>
+                                                {/* THE INVISIBLE OVERLAY TRICK: Catches all clicks outside the dropdown */}
+                                                <div 
+                                                    className="fixed inset-0 z-40" 
+                                                    onClick={() => setOpenMenuId(null)} 
+                                                ></div>
+                                                
+                                                {/* THE ACTUAL DROPDOWN MENU */}
+                                                <div className="absolute right-8 top-6 w-48 bg-[#0a0a0a] border border-zinc-800 shadow-2xl z-50 rounded-sm overflow-hidden">
+                                                    {cert.status === 'REVOKED' || cert.status === 'revoked' ? (
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleReinstate(cert.registration_number); }}
+                                                            className="w-full text-left px-6 py-3 text-[10px] font-mono tracking-widest uppercase text-green-500 hover:bg-zinc-900 transition-colors whitespace-nowrap"
+                                                        >
+                                                            [ REINSTATE_CERT ]
+                                                        </button>
+                                                    ) : (
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); triggerRevokeModal(cert.registration_number); }}
+                                                            className="w-full text-left px-6 py-3 text-[10px] font-mono tracking-widest uppercase text-red-500 hover:bg-zinc-900 transition-colors whitespace-nowrap"
+                                                        >
+                                                            [ REVOKE_CERT ]
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 </div>

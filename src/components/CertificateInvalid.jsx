@@ -46,7 +46,7 @@ const CertificateInvalid = ({ onRetry }) => {
 
             {/* Action Button */}
             <button
-              onClick={onRetry}
+              onClick={() => window.location.href = '/'}
               className="w-full bg-white text-black font-black py-4 text-[11px] tracking-[0.2em] hover:bg-gray-200 transition-colors uppercase"
             >
               Retry_Verification
