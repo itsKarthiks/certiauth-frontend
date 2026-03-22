@@ -216,12 +216,12 @@ const AdminDashboard = () => {
                     {/* Logo Area */}
                     <div className="p-6 border-b border-[#1a1a18] mb-4">
                         <div className="flex items-center text-white font-black text-xl tracking-widest mb-1">
-                            <span className="text-yellow-500 mr-2">C_</span> CERTVIFY
+                            <span className="text-purple-500 mr-2">C_</span> CERTVIFY
                         </div>
                     </div>
 
                     <nav className="flex flex-col gap-1 px-4">
-                        <Link to="/dashboard" className="flex items-center justify-between bg-[#facc15] text-black px-4 py-3 font-bold text-xs tracking-widest transition-colors mb-4">
+                        <Link to="/dashboard" className="flex items-center justify-between bg-purple-600 text-black px-4 py-3 font-bold text-xs tracking-widest transition-colors mb-4">
                             <div className="flex items-center">
                                 <LayoutDashboard className="w-4 h-4 mr-3" strokeWidth={2.5} />
                                 DASHBOARD
@@ -273,7 +273,7 @@ const AdminDashboard = () => {
                                 Dashboard
                             </h1>
                             <div className="text-xs text-gray-500 tracking-[0.15em] uppercase">
-                                <span className="text-yellow-600 mr-2">&gt;</span>
+                                <span className="text-purple-500 mr-2">&gt;</span>
                                 ACCESS LEVEL: ADMIN
                             </div>
                         </div>
@@ -314,7 +314,7 @@ const AdminDashboard = () => {
                                 <div className="text-xs text-gray-400 tracking-widest uppercase">CERTIFICATES</div>
                             </div>
                             <div className="flex items-end justify-between mt-auto">
-                                <div className="text-4xl font-bold text-white tracking-wide border-b-4 border-yellow-500 pb-1 w-3/4">
+                                <div className="text-4xl font-bold text-white tracking-wide border-b-4 border-purple-500 pb-1 w-3/4">
                                     {stats.total}
                                 </div>
                             </div>
@@ -333,7 +333,7 @@ const AdminDashboard = () => {
                                 <div className="text-xs text-gray-400 tracking-widest uppercase">VERIFICATIONS</div>
                             </div>
                             <div className="flex items-end justify-between mt-auto">
-                                <div className="text-4xl font-bold text-white tracking-wide border-b-4 border-yellow-500 pb-1 w-3/4 flex items-end">
+                                <div className="text-4xl font-bold text-white tracking-wide border-b-4 border-purple-500 pb-1 w-3/4 flex items-end">
                                     {stats.active24h} <span className="text-sm text-gray-600 font-normal ml-2 border-none"></span>
                                 </div>
                             </div>
@@ -414,14 +414,14 @@ const AdminDashboard = () => {
                     {/* ALTER RECORDS SECTION */}
                     <div className="flex flex-col mb-12">
                         <h3 className="text-xs font-bold text-white tracking-[0.15em] uppercase flex items-center mb-6">
-                            <span className="text-yellow-500 mr-2">&gt;</span> Quick Actions
+                            <span className="text-purple-500 mr-2">&gt;</span> Quick Actions
                         </h3>
 
                         <div className="flex flex-row gap-6 h-[100px]">
                             {/* Primary Action */}
                             <button
                                 onClick={() => navigate('/issue')}
-                                className="bg-[#facc15] hover:bg-yellow-400 text-black p-5 flex items-center justify-between transition-colors group relative overflow-hidden flex-1"
+                                className="bg-purple-600 hover:bg-purple-500 text-black p-5 flex items-center justify-between transition-colors group relative overflow-hidden flex-1"
                             >
                                 <div className="flex flex-col items-start relative z-10">
                                     <span className="font-extrabold text-sm tracking-widest uppercase mb-1 flex items-center">
@@ -476,13 +476,13 @@ const AdminDashboard = () => {
                     <div className="w-full">
                         <div className="flex justify-between items-end mb-6">
                             <h3 className="text-xs font-bold text-white tracking-[0.15em] uppercase flex items-center">
-                                <span className="text-yellow-500 mr-2">&gt;</span> RECENT_ACTIVITY_LOG
+                                <span className="text-purple-500 mr-2">&gt;</span> RECENT_ACTIVITY_LOG
                             </h3>
                             <div className="flex gap-3">
 
                                 <button
                                     onClick={() => navigate('/logs')}
-                                    className="border border-yellow-900/50 bg-[#1a1608] text-[9px] text-yellow-600 px-3 py-1.5 tracking-widest uppercase hover:bg-[#2a220c] transition-colors"
+                                    className="border border-purple-900/50 bg-[#1a1608] text-[9px] text-purple-500 px-3 py-1.5 tracking-widest uppercase hover:bg-[#2a220c] transition-colors"
                                 >
                                     [ EXPAND_VIEW ]
                                 </button>

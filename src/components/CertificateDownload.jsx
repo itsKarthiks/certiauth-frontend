@@ -131,7 +131,7 @@ const CertificateDownload = () => {
               iframe.contentWindow.print();
             }
           }} 
-          className="w-full bg-[#facc15] hover:bg-[#eab308] text-black font-bold py-4 text-sm tracking-[0.15em] transition-colors rounded-sm"
+          className="w-full bg-purple-600 hover:bg-purple-500 text-black font-bold py-4 text-sm tracking-[0.15em] transition-colors rounded-sm"
         >
           [DOWNLOAD OFFICIAL CERTIFICATE (PDF)]
         </button>
@@ -143,7 +143,7 @@ const CertificateDownload = () => {
       {/* Full Width Verification Status Box (Replacing the 3 boxes) */}
       <div className="w-full max-w-5xl mt-8">
         <div className="bg-[#141414] border border-[#222] p-5 text-center rounded-sm">
-          <div className="text-[#facc15] font-bold text-xs tracking-widest mb-2 uppercase">
+          <div className="text-purple-500 font-bold text-xs tracking-widest mb-2 uppercase">
             _Verify Status
           </div>
           <div className="text-gray-600 text-[10px] tracking-[0.2em] uppercase">

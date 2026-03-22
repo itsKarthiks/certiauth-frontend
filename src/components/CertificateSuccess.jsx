@@ -85,7 +85,7 @@ const CertificateSuccess = ({ data }) => {
               </div>
               <button
                 onClick={() => window.location.href = `/download?id=${certData.registration_number}`}
-                className="w-full md:w-auto bg-[#facc15] hover:bg-[#eab308] text-black font-bold py-3 px-8 text-xs tracking-[0.15em] transition-colors rounded shadow-[0_0_15px_rgba(250,204,21,0.1)] flex items-center justify-center gap-3 whitespace-nowrap"
+                className="w-full md:w-auto bg-purple-600 hover:bg-purple-500 text-black font-bold py-3 px-8 text-xs tracking-[0.15em] transition-colors rounded shadow-[0_0_15px_rgba(147,51,234,0.1)] flex items-center justify-center gap-3 whitespace-nowrap"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 DOWNLOAD PDF

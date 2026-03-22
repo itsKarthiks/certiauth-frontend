@@ -158,7 +158,7 @@ const VerificationLanding = () => {
     if (isLoading) {
         return (
             <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 font-mono">
-                <Loader2 className="w-12 h-12 text-yellow-500 animate-spin mb-6" strokeWidth={3} />
+                <Loader2 className="w-12 h-12 text-purple-500 animate-spin mb-6" strokeWidth={3} />
                 <p className="text-white font-black tracking-[0.4em] uppercase text-sm">Loading Verification...</p>
             </div>
         );
@@ -197,7 +197,7 @@ const VerificationLanding = () => {
             <div className="max-w-7xl mx-auto w-full px-6 flex-grow flex flex-col">
                 <header className="flex justify-between items-center pb-6 border-b border-gray-800">
                     <div className="flex items-center space-x-4">
-                        <div className="bg-[#facc15] text-black font-extrabold text-2xl w-12 h-12 flex items-center justify-center">C_</div>
+                        <div className="bg-purple-600 text-black font-extrabold text-2xl w-12 h-12 flex items-center justify-center">C_</div>
                         <h1 className="text-2xl font-bold text-white tracking-widest uppercase">CERTVIFY</h1>
                     </div>
                     <Link to="/login" className="border border-gray-700 px-4 py-2 hover:bg-gray-800 transition-colors text-xs tracking-widest">:: LOGIN ::</Link>
@@ -215,7 +215,7 @@ const VerificationLanding = () => {
                                 </div>
                                 {isScanning && <div className="absolute top-0 left-0 w-full h-1 bg-[#00ff66]/50 shadow-[0_0_15px_#00ff66] z-20 animate-[scan_2s_ease-in-out_infinite]"></div>}
                             </div>
-                            <button onClick={handleToggleScanner} className={`w-full max-w-xs font-bold py-4 text-xs uppercase tracking-[0.2em] transition-all ${isScanning ? 'bg-red-900/20 text-red-500 border border-red-900/50 hover:bg-red-900/40' : 'bg-[#facc15] text-black hover:bg-[#eab308]'}`}>
+                            <button onClick={handleToggleScanner} className={`w-full max-w-xs font-bold py-4 text-xs uppercase tracking-[0.2em] transition-all ${isScanning ? 'bg-red-900/20 text-red-500 border border-red-900/50 hover:bg-red-900/40' : 'bg-purple-600 text-black hover:bg-purple-500'}`}>
                                 {isScanning ? '[ TERMINATE_SCANNER ]' : '[ INITIALIZE_CAMERA ]'}
                             </button>
                         </div>
@@ -223,13 +223,13 @@ const VerificationLanding = () => {
                         {/* Method 02: Manual Entry */}
                         <div className="p-12 flex flex-col justify-center">
                             <div className="text-xs tracking-widest text-white mb-8 font-black uppercase flex items-center">
-                                <TerminalSquare className="w-4 h-4 mr-3 text-[#facc15]" /> Method 02: MANUAL_ENTRY
+                                <TerminalSquare className="w-4 h-4 mr-3 text-purple-500" /> Method 02: MANUAL_ENTRY
                             </div>
                             <div className="relative mb-8">
-                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[#facc15] font-black">&gt;_</span>
+                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-purple-500 font-black">&gt;_</span>
                                 <input
                                     type="text"
-                                    className="w-full bg-black border border-zinc-900 text-white pl-14 pr-6 py-5 text-[11px] font-mono outline-none focus:border-[#facc15] transition-all placeholder-zinc-800 tracking-widest uppercase"
+                                    className="w-full bg-black border border-zinc-900 text-white pl-14 pr-6 py-5 text-[11px] font-mono outline-none focus:border-purple-500 transition-all placeholder-zinc-800 tracking-widest uppercase"
                                     placeholder="ENTER_UNIVERSITY_REG_ID"
                                     value={manualId}
                                     onChange={(e) => setManualId(e.target.value)}
