@@ -87,7 +87,7 @@ const AdminResolve = () => {
 
       // Step 2: Route through Backend for Cryptographic Signing & Insertion
       const token = localStorage.getItem('adminToken');
-      const response = await fetch('http://localhost:5000/api/certificates/issue', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/certificates/issue`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',

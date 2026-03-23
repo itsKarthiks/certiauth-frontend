@@ -123,7 +123,7 @@ const CertificateLogs = () => {
     const handleToggleStatus = async (certificateId) => {
         try {
             const token = localStorage.getItem('adminToken');
-            await axios.patch(`http://localhost:5000/api/certificates/${certificateId}/toggle-status`, {}, {
+            await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/api/certificates/${certificateId}/toggle-status`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // The new useEffect with Supabase real-time will re-fetch automatically

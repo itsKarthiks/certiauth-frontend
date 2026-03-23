@@ -102,7 +102,7 @@ const IssueCertificate = () => {
             const token = localStorage.getItem('adminToken');
 
             // 2. Sending request to the backend with fetch
-            const response = await fetch('http://localhost:5000/api/certificates/issue', {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/certificates/issue`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ const IssueCertificate = () => {
         try {
             const token = localStorage.getItem('adminToken');
             await axios.post(
-                'http://localhost:5000/api/certificates/bulk-issue',
+                `${import.meta.env.VITE_API_BASE_URL}/api/certificates/bulk-issue`,
                 { students: bulkReport.validStudents },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
