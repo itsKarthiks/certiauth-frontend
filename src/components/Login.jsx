@@ -103,7 +103,7 @@ const Login = () => {
                     </div>
                 </div>
 
-                <div className="p-10 pt-12">
+                <div className="p-6 pt-8 md:p-10 md:pt-12">
                     {/* Branding / Header Section */}
                     <div className="flex flex-col items-center mb-10">
                         <div className="w-14 h-14 bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(147,51,234,0.05)]">

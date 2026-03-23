@@ -236,10 +236,10 @@ const IssueCertificate = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a09] text-gray-300 font-mono flex flex-col pt-6 px-10 pb-20">
+        <div className="min-h-screen bg-[#0a0a09] text-gray-300 font-mono flex flex-col pt-4 md:pt-6 px-4 md:px-10 pb-10 md:pb-20">
 
             {/* TOP NAVIGATION BAR */}
-            <div className="flex items-center justify-between border-b border-[#1a1a18] pb-6 mb-12 mt-2">
+            <div className="flex items-center justify-between border-b border-[#1a1a18] pb-4 md:pb-6 mb-8 md:mb-12 mt-2 gap-2">
                 <div className="flex items-center text-white font-black text-xl tracking-widest">
                     <div className="bg-purple-600 text-black w-8 h-8 flex items-center justify-center mr-3 font-extrabold text-lg">
                         C_
@@ -250,7 +250,7 @@ const IssueCertificate = () => {
                 </div>
 
                 {/* Center Links */}
-                <div className="flex items-center gap-8 text-[10px] font-bold tracking-[0.15em]">
+                <div className="flex items-center gap-3 md:gap-8 text-[9px] md:text-[10px] font-bold tracking-[0.1em] md:tracking-[0.15em] flex-wrap justify-center mx-2 hidden sm:flex">
                     <span onClick={() => navigate('/dashboard')} className="text-gray-500 hover:text-white transition-colors cursor-pointer">DASHBOARD</span>
                     <span onClick={() => navigate('/issue')} className="text-purple-500 border-b-2 border-purple-500 pb-1 cursor-pointer">ISSUE_CERT</span>
                     <span onClick={() => navigate('/')} className="text-gray-500 hover:text-white transition-colors cursor-pointer">VERIFY</span>
@@ -275,9 +275,9 @@ const IssueCertificate = () => {
             <div className="max-w-4xl w-full mx-auto flex flex-col flex-1">
 
                 {/* HEADER SECTION */}
-                <div className="mb-16">
-                    <div className="border-l-4 border-purple-500 pl-6">
-                        <h1 className="text-4xl text-white font-black tracking-wide uppercase mb-3">
+                <div className="mb-10 md:mb-16">
+                    <div className="border-l-4 border-purple-500 pl-4 md:pl-6">
+                        <h1 className="text-2xl md:text-4xl text-white font-black tracking-wide uppercase mb-2 md:mb-3">
                             ISSUE NEW CERTIFICATE
                         </h1>
                     </div>
@@ -300,7 +300,7 @@ const IssueCertificate = () => {
                 {/* BULK IMPORT BANNER */}
                 <div className="mb-8">
                     <div
-                        className="bg-[#141412] border border-[#22221e] py-8 px-8 flex items-center justify-between mb-2 cursor-pointer hover:border-gray-700 transition-colors"
+                        className="bg-[#141412] border border-[#22221e] py-6 md:py-8 px-4 md:px-8 flex flex-col md:flex-row md:items-center justify-between mb-2 cursor-pointer hover:border-gray-700 transition-colors gap-4"
                         onClick={() => fileInputRef.current?.click()}
                     >
                         <input
@@ -311,14 +311,14 @@ const IssueCertificate = () => {
                             onChange={(e) => setFile(e.target.files[0])}
                         />
                         <div className="flex items-center">
-                            <div className="bg-purple-900/20 p-3 mr-6 rounded-sm border border-purple-900/30">
-                                <FileTerminal className="w-8 h-8 text-purple-500" />
+                            <div className="bg-purple-900/20 p-3 mr-4 md:mr-6 rounded-sm border border-purple-900/30">
+                                <FileTerminal className="w-6 h-6 md:w-8 md:h-8 text-purple-500" />
                             </div>
                             <div className="flex flex-col flex-1">
-                                <span className="text-white font-bold text-sm tracking-widest uppercase mb-1">
+                                <span className="text-white font-bold text-xs md:text-sm tracking-widest uppercase mb-1">
                                     Import CSV/Excel File
                                 </span>
-                                <span className="text-xs text-gray-500 tracking-wide font-mono">
+                                <span className="text-[10px] md:text-xs text-gray-500 tracking-wide font-mono">
                                     {file ? file.name : "System has capability to issue 500 certificates at a time"}
                                 </span>
                             </div>
@@ -334,7 +334,7 @@ const IssueCertificate = () => {
                 </div>
 
                 {/* MAIN FORM CONTAINER */}
-                <div className="bg-[#11110f] border border-[#1a1a18] relative px-10 py-10 mb-8">
+                <div className="bg-[#11110f] border border-[#1a1a18] relative px-6 md:px-10 py-8 md:py-10 mb-8">
                     {/* Corner Decorators */}
                     <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-purple-500"></div>
                     <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-purple-500"></div>
@@ -342,13 +342,13 @@ const IssueCertificate = () => {
                     <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-purple-500"></div>
 
                     {/* Container Header */}
-                    <div className="flex items-center text-white font-bold text-[13px] tracking-widest uppercase mb-10">
-                        <Terminal className="w-4 h-4 text-purple-500 mr-3" strokeWidth={2.5} />
+                    <div className="flex items-center text-white font-bold text-xs md:text-[13px] tracking-widest uppercase mb-8 md:mb-10">
+                        <Terminal className="w-4 h-4 text-purple-500 mr-2 md:mr-3" strokeWidth={2.5} />
                         Student Details
                     </div>
 
                     {/* Form Fields */}
-                    <div className="flex flex-col gap-8 mb-12">
+                    <div className="flex flex-col gap-6 md:gap-8 mb-8 md:mb-12">
 
                         {/* Row 1: Name */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -441,15 +441,15 @@ const IssueCertificate = () => {
                     </div>
 
                     {/* Container Footer (Buttons) */}
-                    <div className="flex items-center justify-between mt-6">
-                        <button className="text-[10px] text-gray-500 tracking-widest uppercase hover:text-gray-300 transition-colors font-bold">
+                    <div className="flex flex-col gap-6 md:flex-row items-center justify-between mt-6">
+                        <button className="text-[10px] text-gray-500 tracking-widest uppercase hover:text-gray-300 transition-colors font-bold order-2 md:order-1">
                             &lt; ABORT_PROCESS
                         </button>
 
                         <button
                             onClick={handleProceed}
                             disabled={isSubmitting}
-                            className="bg-purple-600 hover:bg-purple-500 text-black font-bold text-[11px] tracking-widest uppercase px-8 py-3.5 flex items-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full md:w-auto justify-center bg-purple-600 hover:bg-purple-500 text-black font-bold text-[10px] md:text-[11px] tracking-widest uppercase px-8 py-3.5 flex items-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed order-1 md:order-2"
                         >
                             {isSubmitting ? 'ISSUING...' : (
                                 <>Issue Certificate <ChevronRight className="w-4 h-4 ml-2" strokeWidth={3} /></>
@@ -464,7 +464,7 @@ const IssueCertificate = () => {
 
             {modalState.isOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div className="bg-[#050000] border border-purple-500/50 p-8 max-w-lg w-full shadow-2xl relative">
+                    <div className="bg-[#050000] border border-purple-500/50 p-6 md:p-8 w-[95%] md:max-w-lg shadow-2xl relative">
                         <div className="absolute top-0 left-0 w-full h-1 bg-purple-600"></div>
                         
                         {modalState.step === 'confirm' && (
@@ -531,7 +531,7 @@ const IssueCertificate = () => {
 
             {bulkReport.isOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div className="bg-[#050000] border border-purple-500/50 p-8 max-w-xl w-full shadow-2xl relative">
+                    <div className="bg-[#050000] border border-purple-500/50 p-6 md:p-8 w-[95%] md:max-w-xl shadow-2xl relative">
                         <div className="absolute top-0 left-0 w-full h-1 bg-purple-600"></div>
                         
                         {bulkReport.step === 'preview' && (

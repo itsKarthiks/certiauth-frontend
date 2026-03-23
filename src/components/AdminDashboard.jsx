@@ -208,10 +208,10 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="flex h-screen bg-[#0a0a09] text-gray-300 font-mono overflow-hidden">
+        <div className="flex flex-col md:flex-row h-screen bg-[#0a0a09] text-gray-300 font-mono overflow-x-hidden md:overflow-hidden">
 
             {/* SIDEBAR (LEFT PANEL) */}
-            <div className="w-[260px] flex-shrink-0 bg-[#0e0e0c] border-r border-[#1a1a18] flex flex-col justify-between">
+            <div className="w-full md:w-[260px] flex-shrink-0 bg-[#0e0e0c] border-b md:border-r md:border-b-0 border-[#1a1a18] flex flex-col justify-between">
                 <div>
                     {/* Logo Area */}
                     <div className="p-6 border-b border-[#1a1a18] mb-4">
@@ -264,7 +264,7 @@ const AdminDashboard = () => {
                     style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '40px 40px' }}
                 />
 
-                <div className="relative z-10 p-8 md:p-12 max-w-[1400px] mx-auto min-h-full flex flex-col">
+                <div className="relative z-10 p-4 md:p-12 max-w-[1400px] mx-auto min-h-full flex flex-col">
 
                     {/* TOP HEADER */}
                     <div className="flex flex-wrap justify-between items-end mb-12 gap-6">
@@ -311,7 +311,7 @@ const AdminDashboard = () => {
                             </div>
                             <div>
                                 <div className="text-[9px] text-gray-500 tracking-[0.2em] font-bold uppercase mb-1">TOTAL_ISSUED</div>
-                                <div className="text-xs text-gray-400 tracking-widest uppercase">CERTIFICATES</div>
+                                <div className="text-[10px] md:text-xs text-gray-400 tracking-widest uppercase">CERTIFICATES</div>
                             </div>
                             <div className="flex items-end justify-between mt-auto">
                                 <div className="text-4xl font-bold text-white tracking-wide border-b-4 border-purple-500 pb-1 w-3/4">
@@ -373,7 +373,7 @@ const AdminDashboard = () => {
 
                     {/* PENDING CORRECTIONS ALERT PANEL */}
                     {correctionRequests.length > 0 && (
-                        <div className="border border-red-900/50 bg-red-950/10 rounded-xl p-8 mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="border border-red-900/50 bg-red-950/10 rounded-xl p-4 md:p-8 mb-12 animate-in fade-in slide-in-from-top-4 duration-500">
                             <div className="flex items-center gap-3 mb-8 pb-4 border-b border-red-900/20">
                                 <AlertTriangle className="w-5 h-5 text-red-500" />
                                 <h3 className="text-sm font-black text-red-500 tracking-[0.2em] uppercase">
@@ -417,14 +417,14 @@ const AdminDashboard = () => {
                             <span className="text-purple-500 mr-2">&gt;</span> Quick Actions
                         </h3>
 
-                        <div className="flex flex-row gap-6 h-[100px]">
+                        <div className="flex flex-col md:flex-row gap-4 md:gap-6 md:h-[100px]">
                             {/* Primary Action */}
                             <button
                                 onClick={() => navigate('/issue')}
-                                className="bg-purple-600 hover:bg-purple-500 text-black p-5 flex items-center justify-between transition-colors group relative overflow-hidden flex-1"
+                                className="bg-purple-600 hover:bg-purple-500 text-black p-4 md:p-5 flex items-center justify-between transition-colors group relative overflow-hidden flex-1"
                             >
                                 <div className="flex flex-col items-start relative z-10">
-                                    <span className="font-extrabold text-sm tracking-widest uppercase mb-1 flex items-center">
+                                    <span className="font-extrabold text-[12px] md:text-sm tracking-widest uppercase mb-1 flex items-center">
                                         <FileText className="w-4 h-4 mr-2" strokeWidth={2.5} />
                                         ISSUE_NEW_CERT
                                     </span>
@@ -440,10 +440,10 @@ const AdminDashboard = () => {
                             {/* Secondary Action 1 */}
                             <button
                                 onClick={() => navigate('/')}
-                                className="bg-[#11110f] border border-[#1a1a18] hover:border-gray-600 p-5 flex items-center justify-between transition-colors text-white flex-1 h-full"
+                                className="bg-[#11110f] border border-[#1a1a18] hover:border-gray-600 p-4 md:p-5 flex items-center justify-between transition-colors text-white flex-1 h-full min-h-[80px]"
                             >
                                 <div className="flex flex-col items-start">
-                                    <span className="font-bold text-[11px] tracking-widest uppercase mb-1">
+                                    <span className="font-bold text-[10px] md:text-[11px] tracking-widest uppercase mb-1">
                                         MANUAL_VERIFY
                                     </span>
                                     <span className="text-[9px] text-gray-600 tracking-widest uppercase">
@@ -457,10 +457,10 @@ const AdminDashboard = () => {
                             {/* Secondary Action 3 */}
                             <button
                                 onClick={handleExport}
-                                className="bg-[#11110f] border border-[#1a1a18] hover:border-gray-600 p-5 flex items-center justify-between transition-colors text-white flex-1 h-full cursor-pointer hover:opacity-80 transition-opacity"
+                                className="bg-[#11110f] border border-[#1a1a18] hover:border-gray-600 p-4 md:p-5 flex items-center justify-between transition-colors text-white flex-1 h-full min-h-[80px] cursor-pointer hover:opacity-80 transition-opacity"
                             >
                                 <div className="flex flex-col items-start">
-                                    <span className="font-bold text-[11px] tracking-widest uppercase mb-1">
+                                    <span className="font-bold text-[10px] md:text-[11px] tracking-widest uppercase mb-1">
                                         EXPORT_LOGS
                                     </span>
                                     <span className="text-[9px] text-gray-600 tracking-widest uppercase">
@@ -489,23 +489,23 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-                        <div className="bg-[#0e0e0c] border border-[#1a1a18] rounded-sm flex flex-col w-full text-xs">
+                        <div className="bg-[#0e0e0c] border border-[#1a1a18] rounded-sm flex flex-col w-full text-[10px] md:text-xs overflow-x-auto">
                             {/* Table Header */}
-                            <div className="grid grid-cols-[120px_1fr_150px] px-6 text-xs text-zinc-500 font-mono tracking-wider pb-4 border-b border-zinc-800/50">
-                                <div className="text-left pl-6">STATUS_CODE</div>
-                                <div className="text-left pl-4">EVENT_DETAILS</div>
-                                <div className="text-right pr-6">T_STAMP</div>
+                            <div className="grid grid-cols-[100px_1fr_120px] md:grid-cols-[120px_1fr_150px] px-4 md:px-6 text-[10px] md:text-xs text-zinc-500 font-mono tracking-wider pb-4 border-b border-zinc-800/50 min-w-[500px]">
+                                <div className="text-left pl-2 md:pl-6">STATUS_CODE</div>
+                                <div className="text-left pl-2 md:pl-4">EVENT_DETAILS</div>
+                                <div className="text-right pr-2 md:pr-6">T_STAMP</div>
                             </div>
 
                             {/* Table Body */}
-                            <table className="w-full px-6">
+                            <table className="w-full px-4 md:px-6 min-w-[500px]">
                                 <tbody>
                                     {recentLogs.length === 0 ? (
                                         <tr><td colSpan="3" className="text-center py-4 text-zinc-600 text-xs">[ NO_RECENT_RECORDS ]</td></tr>
                                     ) : (
                                         recentLogs.map((log) => (
                                             <tr key={log.id} className="border-b border-zinc-900/50">
-                                                <td className={`py-4 pl-6 text-xs font-mono font-bold tracking-widest ${
+                                                <td className={`py-3 md:py-4 pl-2 md:pl-6 text-[10px] md:text-xs font-mono font-bold tracking-widest ${
                                                     log.status === 'ISSUED' ? 'text-[#00ff66]' : 
                                                     log.status === 'REVOKED' ? 'text-red-500' : 
                                                     log.status === 'DRAFT' ? 'text-blue-500' : 
@@ -513,8 +513,8 @@ const AdminDashboard = () => {
                                                 }`}>
                                                     {log.status}
                                                 </td>
-                                                <td className="py-4 text-zinc-400 text-xs font-mono pl-4">{log.details}</td>
-                                                <td className="py-4 text-zinc-500 text-xs font-mono text-right pr-6">{log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A'}</td>
+                                                <td className="py-3 md:py-4 text-zinc-400 text-[10px] md:text-xs font-mono pl-2 md:pl-4">{log.details}</td>
+                                                <td className="py-3 md:py-4 text-zinc-500 text-[10px] md:text-xs font-mono text-right pr-2 md:pr-6">{log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A'}</td>
                                             </tr>
                                         ))
                                     )}

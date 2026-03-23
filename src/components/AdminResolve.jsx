@@ -126,19 +126,19 @@ const AdminResolve = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-8 font-mono uppercase">
+    <div className="min-h-screen bg-[#0a0a0a] text-white p-4 md:p-8 font-mono uppercase">
       {/* Top Header */}
       <header className="flex justify-between items-center bg-[#0a0a0a]">
-        <div className="text-purple-500 font-bold text-xl tracking-wider">
+        <div className="text-purple-500 font-bold text-lg md:text-xl tracking-wider">
           C_ CERTVIFY
         </div>
 
-        <nav className="flex gap-8 text-sm">
+        <nav className="flex gap-4 md:gap-8 text-xs md:text-sm">
           <button className="text-purple-500 border-b-2 border-purple-500 pb-1">COMPARE</button>
         </nav>
 
         <button className="text-purple-500 hover:text-white transition-colors" onClick={() => navigate('/dashboard')}>
-          <Home size={20} />
+          <Home size={20} className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       </header>
 
@@ -152,10 +152,10 @@ const AdminResolve = () => {
       </div>
 
       {/* Main Comparison Area */}
-      <main className="flex items-stretch gap-8 mt-8">
+      <main className="flex flex-col md:flex-row items-stretch gap-4 md:gap-8 mt-8">
         {/* Left Card */}
-        <div className="bg-[#050000] border border-zinc-800 relative p-8 w-1/2 flex flex-col min-h-[400px]">
-          <div className="mb-8">
+        <div className="bg-[#050000] border border-zinc-800 relative p-6 md:p-8 w-full md:w-1/2 flex flex-col min-h-[400px]">
+          <div className="mb-6 md:mb-8">
             <h2 className="text-purple-500 font-bold tracking-widest text-lg">PREVIOUS_DETAILS</h2>
             <div className="text-zinc-600 text-[10px] tracking-widest mt-1">SOURCE: ORIGINAL_DATABASE_ENTRY</div>
           </div>
@@ -188,15 +188,15 @@ const AdminResolve = () => {
         </div>
 
         {/* Middle Separator */}
-        <div className="flex items-center justify-center">
-          <div className="bg-purple-600 text-black w-10 h-10 flex items-center justify-center font-bold">
-            <ArrowRight size={20} strokeWidth={3} />
+        <div className="flex items-center justify-center py-2 md:py-0">
+          <div className="bg-purple-600 text-black w-8 h-8 md:w-10 md:h-10 flex items-center justify-center font-bold rotate-90 md:rotate-0 rounded-full md:rounded-none">
+            <ArrowRight size={20} strokeWidth={3} className="w-4 h-4 md:w-5 md:h-5" />
           </div>
         </div>
 
         {/* Right Card */}
-        <div className="bg-[#050000] border border-zinc-800 border-r-4 border-r-[#9333ea] relative p-8 w-1/2 flex flex-col min-h-[400px]">
-          <div className="mb-8">
+        <div className="bg-[#050000] border border-zinc-800 border-b-4 md:border-b border-b-[#9333ea] md:border-b-zinc-800 md:border-r-4 md:border-r-[#9333ea] relative p-6 md:p-8 w-full md:w-1/2 flex flex-col min-h-[400px]">
+          <div className="mb-6 md:mb-8">
             <h2 className="text-purple-500 font-bold tracking-widest text-lg">CORRECTED_DETAILS</h2>
             <div className="text-zinc-600 text-[10px] tracking-widest mt-1">SOURCE: VERIFIED_AMENDMENT_REQUEST</div>
           </div>
@@ -264,14 +264,14 @@ const AdminResolve = () => {
       </main>
 
       {/* Bottom Security Audit Log */}
-      <div className="bg-[#111] border border-zinc-800 p-6 mt-8 flex justify-between items-start">
-        <div className="max-w-2xl text-left">
+      <div className="bg-[#111] border border-zinc-800 p-4 md:p-6 mt-8 flex flex-col md:flex-row justify-between items-center md:items-start gap-4">
+        <div className="max-w-2xl text-left w-full hidden md:block">
         </div>
 
-        <div className="flex gap-4 items-center">
+        <div className="flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto">
           <button 
             onClick={() => setShowDeclineModal(true)}
-            className="bg-transparent border border-zinc-600 text-zinc-400 px-6 py-2 text-xs hover:border-white hover:text-white transition-colors tracking-widest"
+            className="w-full sm:w-auto bg-transparent border border-zinc-600 text-zinc-400 px-6 py-4 md:py-2 text-[10px] md:text-xs hover:border-white hover:text-white transition-colors tracking-widest text-center"
           >
             DECLINE_UPDATE
           </button>
@@ -281,7 +281,7 @@ const AdminResolve = () => {
               setShowConfirmModal(true);
               console.log("Modal Triggered"); // Debugging log
             }} 
-            className="bg-purple-600 text-black px-6 py-2 text-xs font-bold hover:bg-white transition-colors tracking-widest"
+            className="w-full sm:w-auto bg-purple-600 text-black px-6 py-4 md:py-2 text-[10px] md:text-xs font-bold hover:bg-white transition-colors tracking-widest text-center"
           >
             COMMIT_CHANGES
           </button>
@@ -291,7 +291,7 @@ const AdminResolve = () => {
       {/* CONFIRMATION MODAL OVERLAY */}
       {showConfirmModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="bg-[#050000] border border-purple-500/50 p-6 max-w-lg w-full shadow-2xl relative">
+          <div className="bg-[#050000] border border-purple-500/50 p-6 max-w-lg w-[95%] md:w-full shadow-2xl relative">
             <div className="absolute top-0 left-0 w-full h-1 bg-purple-600"></div>
             <div className="flex items-center gap-3 mb-4">
               <span className="text-purple-500 text-xl">⚠️</span>
@@ -317,7 +317,7 @@ const AdminResolve = () => {
 
       {showDeclineModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#050000] border border-red-500/50 p-8 max-w-lg w-full shadow-2xl relative">
+          <div className="bg-[#050000] border border-red-500/50 p-6 md:p-8 max-w-lg w-[95%] md:w-full shadow-2xl relative">
             <div className="absolute top-0 left-0 w-full h-1 bg-red-500"></div>
             
             <div className="flex items-center gap-3 mb-6">

@@ -134,9 +134,9 @@ const CorrectionForm = ({ certData: propCertData }) => {
         <div className="min-h-screen bg-[#0a0a09] text-zinc-400 font-mono flex flex-col items-center relative overflow-hidden">
 
             {/* --- HEADER --- */}
-            <header className="w-full border-b border-zinc-800/50 bg-[#0a0a09] px-8 py-4 flex items-center justify-between sticky top-0 z-50">
-                <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate('/student-portal')}>
-                    <div className="w-10 h-10 bg-purple-600 flex items-center justify-center font-black text-black text-xl shadow-[0_0_15px_rgba(147,51,234,0.2)]">
+            <header className="w-full border-b border-zinc-800/50 bg-[#0a0a09] px-4 md:px-8 py-4 flex items-center justify-between sticky top-0 z-50">
+                <div className="flex items-center gap-3 md:gap-4 group cursor-pointer" onClick={() => navigate('/student-portal')}>
+                    <div className="w-8 h-8 md:w-10 md:h-10 bg-purple-600 flex items-center justify-center font-black text-black text-lg md:text-xl shadow-[0_0_15px_rgba(147,51,234,0.2)]">
                         C_
                     </div>
                     <div>
@@ -178,7 +178,7 @@ const CorrectionForm = ({ certData: propCertData }) => {
                 </div>
 
                 <div className="bg-[#0f0f0e] border border-zinc-800/50 p-1 rounded-sm shadow-2xl">
-                    <div className="bg-[#0f0f0e] border border-zinc-800/30 p-10">
+                    <div className="bg-[#0f0f0e] border border-zinc-800/30 p-6 md:p-10">
                         {!isSubmitted ? (
                             <>
                                 <div className="flex items-center gap-3 mb-10 pb-4 border-b border-zinc-800/30">
@@ -217,19 +217,19 @@ const CorrectionForm = ({ certData: propCertData }) => {
                                         onChange={handleInputChange}
                                     />
 
-                                    <div className="flex gap-6 mt-12">
+                                    <div className="flex flex-col md:flex-row gap-4 md:gap-6 mt-8 md:mt-12">
                                         <button 
                                             type="button"
                                             onClick={() => navigate('/verify-draft')}
                                             disabled={isSubmitting}
-                                            className="w-1/2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-500 hover:text-white font-black text-[10px] tracking-[0.4em] uppercase py-5 transition-all outline-none disabled:opacity-50"
+                                            className="w-full md:w-1/2 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-500 hover:text-white font-black text-[10px] tracking-[0.2em] md:tracking-[0.4em] uppercase py-4 md:py-5 transition-all outline-none disabled:opacity-50 text-center"
                                         >
                                             [ ABORT_PROCESS ]
                                         </button>
                                         <button 
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="w-1/2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900/50 text-black font-black text-[10px] tracking-[0.4em] uppercase py-5 transition-all shadow-[0_0_20px_rgba(147,51,234,0.1)] active:scale-[0.98] outline-none"
+                                            className="w-full md:w-1/2 bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900/50 text-black font-black text-[10px] tracking-[0.2em] md:tracking-[0.4em] uppercase py-4 md:py-5 transition-all shadow-[0_0_20px_rgba(147,51,234,0.1)] active:scale-[0.98] outline-none text-center"
                                         >
                                             {isSubmitting ? 'SUBMITTING...' : 'SUBMIT_TO_ADMIN'}
                                         </button>
