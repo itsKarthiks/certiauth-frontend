@@ -1,16 +1,24 @@
-# React + Vite
+# 🛡️ Certvify - Secure Credentialing Platform (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
 
-Currently, two official plugins are available:
+This repository contains the frontend client for **Certvify**, an enterprise-grade, cryptographically secure credential issuance and verification system. Built with React and Vite, it interfaces with our Node.js RSA-SHA256 cryptographic backend to guarantee the authenticity of academic records.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Core Features
 
-## React Compiler
+* **🔐 Admin Dashboard:** Secure interface for authorized personnel to issue, manage, and revoke student credentials.
+* **📱 Live QR Verification:** Integrated camera scanner allowing recruiters to instantly verify physical certificates via dynamically generated QR codes.
+* **⚡ Cryptographic Validation:** Real-time visual feedback (Green/Red states) based on public-key RSA signature decryption and SHA-256 hash matching.
+* **🎨 Responsive Design:** Mobile-first architecture built with Tailwind CSS, ensuring perfect rendering across desktops, tablets, and smartphones.
+* **🚀 Edge-Ready Routing:** Pre-configured `vercel.json` for seamless React Router integration on static hosting.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* **Core:** React 18, Vite
+* **Styling:** Tailwind CSS
+* **Routing:** React Router DOM
+* **HTTP Client:** Axios
+* **Utilities:** `qrcode.react` (QR Generation), `react-qr-reader` (Scanning)
