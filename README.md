@@ -27,7 +27,7 @@ This repository contains the frontend client for **Certvify**, an enterprise-gra
 ## 📸 Screenshots
 
 <p align="center">
-  <b>Home</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Dashboard</b>
+  <b>Admin Dashboard</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b> Student Dashboard</b>
 </p>
 
 <p align="center">
@@ -38,7 +38,7 @@ This repository contains the frontend client for **Certvify**, an enterprise-gra
 <br/>
 
 <p align="center">
-  <b>Profile</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Landing & Login</b>
+  <b>Landing Page</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Admin Login</b>
 </p>
 
 <p align="center">
