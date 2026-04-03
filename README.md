@@ -23,8 +23,32 @@ This repository contains the frontend client for **Certvify**, an enterprise-gra
 * **HTTP Client:** Axios
 * **Utilities:** `qrcode.react` (QR Generation), `react-qr-reader` (Scanning)
 
+ -->
+## 📸 Screenshots
 
-![Certvify-Landing Page](Certvify-Landing.png)
+<p align="center">
+  <b>Home</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Dashboard</b>
+</p>
+
+<p align="center">
+  <img src="Certvify-AdminDashboard.png" width="45%"/>
+  <img src="Certvify-StudentDashboard.png" width="45%"/>
+</p>
+
+<br/>
+
+<p align="center">
+  <b>Profile</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Landing & Login</b>
+</p>
+
+<p align="center">
+  <img src="Certvify-Landing.png" width="45%"/>
+  <img src="Certvify-AdminLogin.png" width="45%"/>
+</p>
+
+
+
+<!-- ![Certvify-Landing Page](Certvify-Landing.png)
 ![Certvify-AdminLogin](Certvify-AdminLogin.png)
 ![Certvify-AdminDashboard](Certvify-AdminDashboard.png)
 ![Certvify-StudentDashboard](Certvify-StudentDashboard.png)
