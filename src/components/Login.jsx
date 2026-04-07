@@ -225,13 +225,6 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* Bottom Meta Bar Decor */}
-            <div className="absolute bottom-10 w-full px-12 opacity-20 pointer-events-none hidden lg:flex justify-between text-[8px] font-black uppercase tracking-[0.5em] text-zinc-500">
-                <span>ID: UCEK-AUTH-884</span>
-                <span>LOC: 8.5492° N, 76.8824° E</span>
-                <span>UNIVERSITY COLLEGE OF ENGINEERING</span>
-                <span>ENCRYPTION: AES-256-GCM</span>
-            </div>
         </div>
     );
 };

@@ -91,7 +91,7 @@ const AuthGateway = () => {
 
                         <div className="mb-4">
                             <label className="block text-[10px] text-purple-500 tracking-[0.1em] uppercase mb-2 font-bold">
-                                PASSCODE
+                                PASSWORD
                             </label>
                             <div className="relative">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2">
@@ -115,11 +115,6 @@ const AuthGateway = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end mb-10">
-                            <a href="#" className="text-[10px] text-purple-500 hover:text-purple-500 border-b border-purple-600/30 border-dashed pb-0.5 tracking-widest uppercase transition-colors">
-                                FORGOT_CREDENTIALS?
-                            </a>
-                        </div>
 
                         <button
                             type="submit"
@@ -127,7 +122,7 @@ const AuthGateway = () => {
                             className="w-full bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-black font-extrabold tracking-[0.15em] py-4 text-sm transition-colors uppercase flex justify-center items-center"
                         >
                             {isLoading ? (
-                                'AUTHENTICATING...'
+                                'Loging In...'
                             ) : (
                                 <>
                                     <span className="mr-3 font-normal">-&gt;</span> LOGIN
