@@ -537,13 +537,12 @@ const IssueCertificate = () => {
                         {bulkReport.step === 'preview' && (
                             <>
                                 <div className="flex items-center gap-3 mb-6">
-                                    <span className="text-purple-500 text-xl">📊</span>
-                                    <h3 className="text-purple-500 font-mono text-sm font-bold tracking-widest">PRE-FLIGHT_BATCH_REPORT</h3>
+                                    <h3 className="text-purple-500 font-mono text-sm font-bold tracking-widest">Batch Report</h3>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 mb-6">
                                     <div className="bg-[#111] border border-green-500/30 p-4">
-                                        <p className="text-zinc-500 font-mono text-[10px] uppercase mb-1">Ready to Mint</p>
+                                        <p className="text-zinc-500 font-mono text-[10px] uppercase mb-1">Ready to Issue</p>
                                         <p className="text-green-400 font-mono text-2xl font-black">{bulkReport.validStudents.length}</p>
                                     </div>
                                     <div className="bg-[#111] border border-red-500/30 p-4">
@@ -590,7 +589,7 @@ const IssueCertificate = () => {
                                     <h3 className="text-green-500 font-mono text-sm font-bold tracking-widest">BATCH_ISSUANCE_COMPLETE</h3>
                                 </div>
                                 <p className="text-gray-400 font-mono text-xs leading-relaxed mb-8">
-                                    Successfully minted {bulkReport.validStudents.length} new certificates. Digital signatures have been generated and secured in the registry.
+                                    Successfully Issued {bulkReport.validStudents.length} new certificates. Digital signatures have been generated and secured in the registry.
                                 </p>
                                 <div className="flex justify-end">
                                     <button onClick={() => setBulkReport({ isOpen: false, step: 'preview', validStudents: [], skipped: [] })} className="px-6 py-2 bg-zinc-800 text-white font-mono text-[10px] font-bold uppercase hover:bg-zinc-700 transition-colors">
