@@ -1,3 +1,7 @@
+<p>
+ <img src = "https://github.com/itsKarthiks/certiauth-frontend/blob/16c104dbf34f3ffba9d1c2835412c3a7bda196b9/Banner.png">
+</p>
+
 # 🛡️ Certvify - Secure Credentialing Platform (Frontend)
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
