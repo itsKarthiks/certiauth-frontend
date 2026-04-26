@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, TerminalSquare, ScanLine, X, CheckCircle, AlertTriangle, ShieldCheck, Loader2, Copy, ExternalLink, ArrowLeft } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import CertificateSuccess from './CertificateSuccess';
 import CertificateInvalid from './CertificateInvalid';
@@ -20,6 +20,8 @@ const VerificationLanding = () => {
 
     const [searchParams] = useSearchParams();
     const urlId = searchParams.get('id');
+    const location = useLocation();
+    const [fromAdmin] = useState(location.state?.fromAdmin || false);
 
     const [isScanning, setIsScanning] = useState(false);
     const [cameraError, setCameraError] = useState(false);
@@ -218,7 +220,11 @@ const VerificationLanding = () => {
                         <div className="bg-purple-600 text-black font-extrabold text-xl md:text-2xl w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">C_</div>
                         <h1 className="text-xl md:text-2xl font-bold text-white tracking-widest uppercase">CERTVIFY</h1>
                     </div>
-                    <Link to="/login" className="border border-gray-700 px-3 md:px-4 py-2 hover:bg-gray-800 transition-colors text-[10px] md:text-xs tracking-widest">:: LOGIN ::</Link>
+                    {fromAdmin ? (
+                        <Link to="/dashboard" className="border border-gray-700 px-3 md:px-4 py-2 hover:bg-gray-800 transition-colors text-[10px] md:text-xs tracking-widest">:: HOME ::</Link>
+                    ) : (
+                        <Link to="/login" className="border border-gray-700 px-3 md:px-4 py-2 hover:bg-gray-800 transition-colors text-[10px] md:text-xs tracking-widest">:: LOGIN ::</Link>
+                    )}
                 </header>
 
                 <div className="flex-grow flex flex-col py-6 md:py-12 justify-center items-center">

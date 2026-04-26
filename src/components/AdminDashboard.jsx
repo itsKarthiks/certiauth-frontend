@@ -439,7 +439,7 @@ const AdminDashboard = () => {
 
                             {/* Secondary Action 1 */}
                             <button
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate('/', { state: { fromAdmin: true } })}
                                 className="bg-[#11110f] border border-[#1a1a18] hover:border-gray-600 p-4 md:p-5 flex items-center justify-between transition-colors text-white flex-1 h-full min-h-[80px]"
                             >
                                 <div className="flex flex-col items-start">
