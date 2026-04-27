@@ -1,0 +1,89 @@
+-- Create Users Table
+CREATE TABLE users (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  role TEXT DEFAULT 'student' CHECK (role IN ('admin', 'student')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+-- Create Certificates Table
+CREATE TABLE certificates (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  certificate_id TEXT UNIQUE NOT NULL, 
+  student_name TEXT NOT NULL,
+  student_id TEXT NOT NULL,
+  program TEXT NOT NULL,
+  cgpa TEXT NOT NULL,
+  issue_date DATE DEFAULT CURRENT_DATE,
+  digital_signature TEXT NOT NULL,
+  is_revoked BOOLEAN DEFAULT FALSE,
+  revocation_reason TEXT DEFAULT '',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+CREATE TABLE verification_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  certificate_id TEXT,
+  verified_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
+);
+
+CREATE TABLE correction_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  student_email TEXT NOT NULL,
+  corrected_name TEXT,
+  corrected_reg_no TEXT,
+  corrected_course TEXT,
+  corrected_cgpa TEXT,
+  status TEXT DEFAULT 'Pending' CHECK (status IN ('Pending', 'Resolved', 'Rejected')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Rename the old student_id column to registration_number
+ALTER TABLE certificates 
+RENAME COLUMN student_id TO registration_number;
+
+-- Optional: Ensure the column is explicitly defined as a TEXT field to handle 12-digit numbers safely
+ALTER TABLE certificates 
+ALTER COLUMN registration_number TYPE TEXT;
+
+-- Ensure the certificates table has all the exact columns we need
+ALTER TABLE certificates 
+ADD COLUMN IF NOT EXISTS course TEXT,
+ADD COLUMN IF NOT EXISTS student_name TEXT,
+ADD COLUMN IF NOT EXISTS cgpa TEXT,
+ADD COLUMN IF NOT EXISTS digital_signature TEXT;
+
+
+-- Create a public profiles table to link Auth users to their Reg Numbers
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  registration_number TEXT UNIQUE NOT NULL,
+  full_name TEXT,
+  role TEXT DEFAULT 'student'
+);
+
+-- Enable RLS
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public profiles are viewable by everyone." ON profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own profile." ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- 1. Create the function that does the actual deleting
+create or replace function public.handle_deleted_profile()
+returns trigger
+language plpgsql
+security definer -- This allows the script to bypass normal security to reach the hidden auth table
+as $$
+begin
+  -- Delete the user from the hidden Auth system where the IDs match
+  delete from auth.users where id = old.id;
+  return old;
+end;
+$$;
+
+-- 2. Create the trigger that watches the profiles table
+drop trigger if exists on_profile_deleted on public.profiles;
+create trigger on_profile_deleted
+  after delete on public.profiles
+  for each row execute procedure public.handle_deleted_profile();
