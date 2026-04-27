@@ -4,7 +4,6 @@ import {
     Bell,
     Sun,
     Search,
-    SlidersHorizontal,
     Plus,
     MoreVertical,
     Ban,
@@ -249,10 +248,6 @@ const CertificateLogs = () => {
                                 REVOKED
                             </button>
                         </div>
-
-                        <button className="p-3 bg-black border border-[#22221e] text-gray-500 hover:text-white transition-colors ml-2">
-                            <SlidersHorizontal className="w-4 h-4" />
-                        </button>
                     </div>
                 </div>
 
