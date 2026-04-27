@@ -1,3 +1,4 @@
+# 1
 -- Create Users Table
 CREATE TABLE users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -23,11 +24,15 @@ CREATE TABLE certificates (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
 
+#2
+
 CREATE TABLE verification_logs (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   certificate_id TEXT,
   verified_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
+
+#3
 
 CREATE TABLE correction_requests (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -40,6 +45,8 @@ CREATE TABLE correction_requests (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+#4
+
 -- Rename the old student_id column to registration_number
 ALTER TABLE certificates 
 RENAME COLUMN student_id TO registration_number;
@@ -48,6 +55,8 @@ RENAME COLUMN student_id TO registration_number;
 ALTER TABLE certificates 
 ALTER COLUMN registration_number TYPE TEXT;
 
+#5
+
 -- Ensure the certificates table has all the exact columns we need
 ALTER TABLE certificates 
 ADD COLUMN IF NOT EXISTS course TEXT,
@@ -55,6 +64,54 @@ ADD COLUMN IF NOT EXISTS student_name TEXT,
 ADD COLUMN IF NOT EXISTS cgpa TEXT,
 ADD COLUMN IF NOT EXISTS digital_signature TEXT;
 
+#6
+
+-- Remove the old strict column to allow our new schema to work
+ALTER TABLE certificates DROP COLUMN IF EXISTS program;
+
+#6
+
+ALTER TABLE certificates ADD COLUMN IF NOT EXISTS student_email TEXT;
+
+#7 
+
+-- This ensures 'registration_number' is recognized as the unique identity for this table
+ALTER TABLE certificates 
+ADD CONSTRAINT unique_reg_no UNIQUE (registration_number);
+
+#8
+
+-- 1. Remove any old constraints that might be clashing
+ALTER TABLE certificates DROP CONSTRAINT IF EXISTS certificates_registration_number_key;
+ALTER TABLE certificates DROP CONSTRAINT IF EXISTS unique_reg_no;
+
+-- 2. Add a clean, fresh Unique constraint
+ALTER TABLE certificates ADD CONSTRAINT certificates_reg_unique UNIQUE (registration_number);
+
+#9
+
+-- 1. Delete the old, buggy table
+DROP TABLE IF EXISTS certificates;
+
+-- 2. Create the table with registration_number as the ACTUAL Primary Key
+-- This makes duplicates impossible and makes "Upsert" work perfectly.
+CREATE TABLE certificates (
+    registration_number TEXT PRIMARY KEY,
+    student_name TEXT NOT NULL,
+    student_email TEXT,
+    course TEXT,
+    cgpa TEXT,
+    digital_signature TEXT,
+    issued_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 3. Enable RLS (so your frontend can see it)
+ALTER TABLE certificates ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public read" ON certificates FOR SELECT USING (true);
+CREATE POLICY "Allow admin insert" ON certificates FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow admin update" ON certificates FOR UPDATE USING (true);
+
+# 10
 
 -- Create a public profiles table to link Auth users to their Reg Numbers
 CREATE TABLE IF NOT EXISTS profiles (
@@ -68,6 +125,35 @@ CREATE TABLE IF NOT EXISTS profiles (
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public profiles are viewable by everyone." ON profiles FOR SELECT USING (true);
 CREATE POLICY "Users can insert their own profile." ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+# 11
+
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  registration_number TEXT UNIQUE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Turn on security so students can only see/edit their own profile
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can insert their own profile." ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can view own profile." ON profiles FOR SELECT USING (auth.uid() = id);
+
+
+# 12
+
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email TEXT;
+
+# 13
+
+-- 1. Delete the bad policy I gave you
+DROP POLICY IF EXISTS "Users can insert their own profile." ON profiles;
+
+-- 2. Add a forgiving policy so your frontend can actually save the data
+CREATE POLICY "Allow profile creation during signup" ON profiles FOR INSERT WITH CHECK (true);
+
+#14
 
 -- 1. Create the function that does the actual deleting
 create or replace function public.handle_deleted_profile()
