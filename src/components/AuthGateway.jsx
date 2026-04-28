@@ -139,9 +139,12 @@ const AuthGateway = () => {
                         SYSTEM.STATUS: <span className="text-gray-300 ml-1">ONLINE</span>
                     </div>
 
-                    <div className="text-[10px] tracking-widest text-gray-500">
-                        <Link to="/" className="text-white hover:text-purple-500 underline underline-offset-4 decoration-1 decoration-gray-600 transition-colors uppercase">
-                            Public Portal
+                    <div className="flex flex-row items-center gap-4 w-full">
+                        <Link to="/" className="flex-1 border border-zinc-800 bg-transparent text-zinc-500 hover:text-white hover:border-zinc-500 font-mono text-[10px] font-black tracking-[0.2em] py-3 px-4 uppercase transition-colors text-center">
+                            [ PUBLIC_PORTAL ]
+                        </Link>
+                        <Link to="/login" className="flex-1 text-center bg-purple-600 hover:bg-purple-500 text-black font-mono text-[10px] font-black tracking-[0.2em] py-3 px-4 uppercase transition-colors block">
+                            [ STUDENT_LOGIN ]
                         </Link>
                     </div>
                 </div>

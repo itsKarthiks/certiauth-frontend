@@ -208,18 +208,18 @@ const Login = () => {
                     </form>
 
                     {/* Footer Links */}
-                    <div className="mt-12 pt-8 border-t border-zinc-900 border-dashed flex flex-col items-center gap-3">
+                    <div className="mt-12 pt-8 border-t border-zinc-900 border-dashed flex flex-row items-center gap-4">
                         <button
                             onClick={() => {
                                 setIsLogin(!isLogin);
                                 setErrorMsg('');
                             }}
-                            className="border border-zinc-800 bg-transparent text-zinc-500 hover:text-white hover:border-zinc-500 font-mono text-[10px] font-black tracking-[0.2em] py-3 px-8 uppercase transition-colors"
+                            className="flex-1 border border-zinc-800 bg-transparent text-zinc-500 hover:text-white hover:border-zinc-500 font-mono text-[10px] font-black tracking-[0.2em] py-3 px-4 text-center uppercase transition-colors"
                         >
                             {isLogin ? '[ CREATE_ACCOUNT ]' : '[ STUDENT_LOGIN ]'}
                         </button>
-                        <Link to="/admin-login" className="text-[9px] text-zinc-600 hover:text-red-500 transition-colors font-black tracking-widest uppercase pt-2">
-                            <span className="text-zinc-500 font-bold block bg-zinc-900/50 px-4 py-2 border border-zinc-800/50 hover:border-red-900/50 transition-all">ADMIN LOGIN</span>
+                        <Link to="/admin-login" className="flex-1 text-center bg-purple-600 hover:bg-purple-500 text-black font-mono text-[10px] font-black tracking-[0.2em] py-3 px-4 uppercase transition-colors block">
+                            [ ADMIN_LOGIN ]
                         </Link>
                     </div>
                 </div>
