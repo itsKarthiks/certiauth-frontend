@@ -110,30 +110,30 @@ const AdminNotifications = () => {
         {/* --- RECENTLY RESOLVED ARCHIVE --- */}
         <div className="mt-20 border-t border-zinc-800 pt-10 mb-10">
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-zinc-600 text-lg">✓</span>
-            <h3 className="text-zinc-500 font-mono text-xs font-bold tracking-widest uppercase">RECENTLY_RESOLVED_ARCHIVE</h3>
+            <span className="text-zinc-400 text-lg">✓</span>
+            <h3 className="text-zinc-400 font-mono text-xs font-bold tracking-widest uppercase">RECENTLY_RESOLVED_ARCHIVE</h3>
           </div>
           
           {resolvedRequests.length === 0 ? (
-            <p className="text-zinc-700 font-mono text-[10px] uppercase tracking-wider">No archived records found.</p>
+            <p className="text-zinc-500 font-mono text-[10px] uppercase tracking-wider">No archived records found.</p>
           ) : (
-            <div className="space-y-3 opacity-60 hover:opacity-100 transition-opacity duration-500">
+            <div className="space-y-3 transition-opacity duration-500">
               {resolvedRequests.map(req => (
-                <div key={req.id} className="bg-[#050505] border border-zinc-800/50 p-4 flex justify-between items-center">
+                <div key={req.id} className="bg-[#0a0a0a] border border-zinc-700/50 p-4 flex justify-between items-center hover:border-zinc-500 transition-colors">
                   <div className="flex flex-col gap-1">
-                    <p className="text-zinc-500 font-mono text-[10px] uppercase">
-                      REG_NO: <span className="text-zinc-300">{req.original_reg_no || req.registration_number || req.reg_no || 'UNKNOWN_ID'}</span>
+                    <p className="text-zinc-400 font-mono text-[10px] uppercase">
+                      REG_NO: <span className="text-zinc-200">{req.original_reg_no || req.registration_number || req.reg_no || 'UNKNOWN_ID'}</span>
                     </p>
-                    <p className="text-zinc-600 font-mono text-[9px] uppercase">
+                    <p className="text-zinc-500 font-mono text-[9px] uppercase">
                       TARGET: {req.corrected_name || req.corrected_cgpa || 'DOCUMENT_UPDATE'}
                     </p>
                   </div>
                   {req.status === 'Rejected' ? (
-                    <div className="text-red-500/60 font-mono text-[9px] font-bold tracking-widest uppercase border border-red-500/20 px-3 py-1 bg-red-500/5">
+                    <div className="text-red-500 font-mono text-[9px] font-bold tracking-widest uppercase border border-red-500/50 px-3 py-1 bg-red-500/10">
                       [ REJECTED ]
                     </div>
                   ) : (
-                    <div className="text-green-500/40 font-mono text-[9px] font-bold tracking-widest uppercase border border-green-500/10 px-3 py-1 bg-green-500/5">
+                    <div className="text-green-500 font-mono text-[9px] font-bold tracking-widest uppercase border border-green-500/50 px-3 py-1 bg-green-500/10">
                       [ RESOLVED ]
                     </div>
                   )}
