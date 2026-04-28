@@ -60,7 +60,7 @@ const AdminNotifications = () => {
       </header>
 
       {/* Main Body */}
-      <main className="max-w-[1400px] w-full mx-auto pt-10 px-6 md:px-12">
+      <main className="max-w-[1400px] w-full mx-auto pt-10 pb-20 px-6 md:px-12">
         <div className="border-b border-[#1a1a18] pb-6 mb-10 text-left">
           <h1 className="text-white font-black tracking-widest text-3xl md:text-4xl text-left">
             REVOKE NOTIFICATIONS
@@ -108,7 +108,7 @@ const AdminNotifications = () => {
         </div>
 
         {/* --- RECENTLY RESOLVED ARCHIVE --- */}
-        <div className="mt-20 border-t border-zinc-800 pt-10 mb-10">
+        <div className="mt-20 border-t border-zinc-800 pt-10">
           <div className="flex items-center gap-3 mb-6">
             <span className="text-zinc-400 text-lg">✓</span>
             <h3 className="text-zinc-400 font-mono text-xs font-bold tracking-widest uppercase">RECENTLY_RESOLVED_ARCHIVE</h3>
