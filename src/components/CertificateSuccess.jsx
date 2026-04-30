@@ -35,7 +35,8 @@ const CertificateSuccess = ({ data }) => {
             <svg className="w-8 h-8 text-[#00ff66]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
           </div>
           <h1 className="text-3xl font-bold tracking-widest mb-2 text-white">CERTIFICATE VALID</h1>
-          <p className="text-[#00ff66] text-xs font-bold tracking-[0.15em] uppercase">OFFICIALLY VERIFIED BY CERTVIFY</p>
+          <p className="text-[#00ff66] text-xs font-bold tracking-[0.15em] uppercase">OFFICIALLY VERIFIED BY CERTVIFY
+          </p>
         </div>
 
         {/* Details section */}
